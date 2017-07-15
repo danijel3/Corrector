@@ -18,10 +18,9 @@
                 <th>Dodaj/usuń</th>
             </tr>
             {% for item in items %}
-                {% set first_item = True %}
                 {% for ph in item.phon %}
                     <tr>
-                        {% if first_item %}
+                        {% if loop.index0 == 0 %}
                             <td>{{ item.orto }}</td>
                         {% else %}
                             <td><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></td>
@@ -30,7 +29,7 @@
                         <td><input type="text" value="{{ ph|join(' ') }}"
                                    onchange="update_lex('{{ name }}','{{ item.id }}',{{ loop.index0 }},this);"></td>
 
-                        {% if first_item %}
+                        {% if loop.index0 == 0 %}
                             <td>
                                 <button class="btn" onclick="add_lex('{{ name }}','{{ item.id }}');">
                                     <span class="glyphicon glyphicon-plus-sign green" aria-hidden="true"></span>
@@ -44,7 +43,6 @@
                             </td>
                         {% endif %}
                     </tr>
-                    {% set first_item = False %}
                 {% endfor %}
             {% endfor %}
 
