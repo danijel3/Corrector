@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Korpus "{{ name }}"</h1>
+            <p>Leksykon <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+            </p>
+            <a href="/">Powrót na główną stronę</a>
+        </div>
+    </div>
+
+    <div id="lexicon" class="container">
+
+        <table class="table">
+            <tr>
+                <th>Słowo</th>
+                <th>Transkrypcja</th>
+                <th>Dodaj/usuń</th>
+            </tr>
+            {% for item in items %}
+                {% set first_item = True %}
+                {% for ph in item.phon %}
+                    <tr>
+                        {% if first_item %}
+                            <td>{{ item.orto }}</td>
+                        {% else %}
+                            <td><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></td>
+                        {% endif %}
+
+                        <td><input type="text" value="{{ ph|join(' ') }}"
+                                   onchange="update_lex('{{ name }}','{{ item.id }}',{{ loop.index0 }},this);"></td>
+
+                        {% if first_item %}
+                            <td>
+                                <button class="btn" onclick="add_lex('{{ name }}','{{ item.id }}');">
+                                    <span class="glyphicon glyphicon-plus-sign green" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        {% else %}
+                            <td>
+                                <button class="btn" onclick="rem_lex('{{ name }}','{{ item.id }}',{{ loop.index0 }});">
+                                    <span class="glyphicon glyphicon-minus-sign red" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% set first_item = False %}
+                {% endfor %}
+            {% endfor %}
+
+        </table>
+
+        <div style="text-align: center">
+            <ul class="pagination">
+                {% for p in range(pagination_start,pagination_end) %}
+                    {% set text = p|string %}
+                    {% if p == pagination_start %}
+                        {% set text = '...' + text %}
+                    {% elif p==pagination_end-1 %}
+                        {% set text = text + '...' %}
+                    {% endif %}
+                    {% if p - 1 == page %}
+                        <li class="active"><a href="/lex/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
+                    {% else %}
+                        <li><a href="/lex/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

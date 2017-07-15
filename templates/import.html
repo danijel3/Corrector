@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Import</h1>
+            <a href="/">Powrót na główną stronę</a>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+
+    <div class="container">
+        <h2>Dostępne w katalogu "import":</h2>
+        <div class="container col-md-6">
+            <table class="table">
+                <tr>
+                    <th>Nazwa</th>
+                    <th colspan="3">Importuj jako:</th>
+                </tr>
+                {% for c in corpora %}
+                    <tr>
+                        <td>{{ c }}</td>
+                        <td>
+                            <a href="/import?corp={{ c }}&pass={{ pwd }}&type=norm" data-toggle="tooltip"
+                               title="Normalizacja">
+                                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/import?corp={{ c }}&pass={{ pwd }}&type=lex" data-toggle="tooltip"
+                               title="Leksykon">
+                                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/import?corp={{ c }}&pass={{ pwd }}&type=speech" data-toggle="tooltip"
+                               title="Mowa">
+                                <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

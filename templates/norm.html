@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Korpus "{{ name }}"</h1>
+            <p>Normalizacja <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            </p>
+            <a href="/">Powrót na główną stronę</a>
+        </div>
+    </div>
+
+    <div id="normalization" class="container">
+
+        <p style="float:right">
+            <button id="diff_btn" class="btn">Diff</button>
+        </p>
+        <script type="text/javascript">
+            $('#diff_btn').click(function () {
+                diff_norm();
+            });
+        </script>
+
+        <table class="table fixed-table">
+            <tr>
+                <th>Oryginał</th>
+                <th>Normalizator</th>
+                <th>Poprawka</th>
+            </tr>
+            {% for item in items %}
+                {% if item.corr %}
+                    <tr class="warning">
+                        {% else %}
+                    <tr>
+                {% endif %}
+            <td>{{ item.orig }}</td>
+            <td class="norm">
+                <span class="edit">{{ item.norm }}</span>
+                <span class="diff hide">test</span>
+            </td>
+
+            {% if item.corr %}
+                {% set input_value =  item.corr %}
+            {% else %}
+                {% set input_value =  item.norm %}
+            {% endif %}
+
+            <td class="corr">
+                <textarea class="edit" spellcheck="true" type="text"
+                          onchange="update_norm('{{ name }}','{{ item.id }}',this);">{{ input_value }}</textarea>
+                <span class="diff hide">test</span>
+            </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div style="text-align: center">
+            <ul class="pagination">
+                {% for p in range(pagination_start,pagination_end) %}
+                    {% set text = p|string %}
+                    {% if p == pagination_start %}
+                        {% set text = '...' + text %}
+                    {% elif p==pagination_end-1 %}
+                        {% set text = text + '...' %}
+                    {% endif %}
+                    {% if p - 1 == page %}
+                        <li class="active"><a href="/norm/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
+                    {% else %}
+                        <li><a href="/norm/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+{% endblock %}

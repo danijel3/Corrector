@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Korpus "{{ name }}"</h1>
+            <p>Mowa <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
+            </p>
+            <a href="/">Powrót na główną stronę</a>
+        </div>
+    </div>
+
+    <div id="speech" class="container">
+
+        <h2>Zdanie:<b> {{ item.utt }}</b></h2>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {#                <audio controls preload="none" style="width: 100%">#}
+                {#                    <source id="audio-source"#}
+                {#                            src="/speech/{{ name }}/wav/{{ page }}">#}
+                {#                    Cannot play audio!#}
+                {#                </audio>#}
+                <div id="waveform"></div>
+
+                <script src="{{ url_for('static', filename='speech.js') }}"></script>
+                <script type="text/javascript">
+                    wavesurfer.load('/speech/{{ name }}/wav/{{ page }}');
+                    wavesurfer.on('ready', function () {
+                        {% for reg in item.regions %}
+                            add_region({{ reg[0] }}, {{ reg[1] }});
+                        {% endfor %}
+                    });
+                </script>
+
+                <button class="btn btn-primary" onclick="wavesurfer.playPause()">
+                    <span class="glyphicon glyphicon-play"></span>
+                    Odtwórz/Zatrzymaj
+                </button>
+
+                <button class="btn" onclick="add_region(1,2)">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Dodaj region do pominięcia
+                </button>
+
+                <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
+
+                <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ page }}')">
+                    <span class="glyphicon glyphicon-check"></span>
+                    Zapisz
+                </button>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Oryginał
+            </div>
+            <div class="panel-body">
+                <p id="orig">{{ item.text }}</p>
+                <p id="orig_diff" class="diff hide">test</p>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Korekta
+                <span style="float:right; position: relative; top:-7px">
+                    <button id="save_btn" class="btn" onclick="save_speech('{{ name }}','{{ page }}')">
+                        <span class="glyphicon glyphicon-check"></span>
+                        Zapisz
+                    </button>
+                    <button id="diff_btn" class="btn btn-info">Diff</button>
+                </span>
+
+                <script type="text/javascript">
+                    $('#diff_btn').click(function () {
+                        diff_norm();
+                    });
+                </script>
+            </div>
+
+            {% if item.corr %}
+                {% set input_value =  item.corr %}
+                {% set class_value = 'modified' %}
+            {% else %}
+                {% set input_value =  item.text %}
+                {% set class_value = '' %}
+            {% endif %}
+
+            <div class="panel-body">
+                <textarea id="corr" oninput="update_speech()"
+                          class="{{ class_value }}">{{ input_value }}</textarea>
+                <p id="corr_diff" class="diff hide">test</p>
+            </div>
+        </div>
+
+        <div style="text-align: center">
+            <ul class="pagination">
+                {% for p in range(pagination_start,pagination_end) %}
+                    {% set text = p|string %}
+                    {% if p == pagination_start %}
+                        {% set text = '...' + text %}
+                    {% elif p==pagination_end-1 %}
+                        {% set text = text + '...' %}
+                    {% endif %}
+                    {% if p - 1 == page %}
+                        <li class="active"><a href="/speech/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
+                    {% else %}
+                        <li><a href="/speech/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
