@@ -5,6 +5,7 @@ import shutil
 import re
 
 from db import mongo
+from pymongo import DESCENDING
 
 re_sp = re.compile('\s+')
 
@@ -75,6 +76,16 @@ def corpus_import(path, type):
                     p = l[s + 1:].strip()
                     wav[id] = p
 
+        if os.path.exists(os.path.join(path, 'edits.txt')):
+            edits = {}
+            with codecs.open(os.path.join(path, 'edits.txt'), encoding='utf-8') as f:
+                for l in f:
+                    s = l.find(' ')
+                    if s > 0:
+                        id = l[:s].strip()
+                        ed = int(l[s + 1:].strip())
+                        edits[id] = ed
+
         with codecs.open(os.path.join(path, 'text'), encoding='utf-8') as f:
             text = []
             id = 0
@@ -83,10 +94,18 @@ def corpus_import(path, type):
                 if s > 0:
                     utt_id = l[:s].strip()
                     t = l[s + 1:].strip()
-                    text.append({'id': id, 'utt': utt_id, 'text': t, 'wav': wav[utt_id], 'corr': '', 'regions': []})
+                    eds = 0
+                    wer = 0
+                    if (edits) and utt_id in edits:
+                        eds = edits[utt_id]
+                        wer = float(eds) / len(t.split(' '))
+                    text.append({'id': id, 'utt': utt_id, 'text': t, 'wav': wav[utt_id], 'corr': '', 'regions': [],
+                                 'edits': eds, 'wer': wer})
                     id += 1
 
         coll.insert_many(text)
+        coll.create_index([('edits', DESCENDING)])
+        coll.create_index([('wer', DESCENDING)])
 
     corp = {'kind': type, 'name': name, 'coll': collname, 'num': id}
     mongo.db.corpora.insert_one(corp)
@@ -127,7 +146,7 @@ def corpus_export(path, name, type):
                         f.write(u'{} {}\n'.format(item['utt'], item['text']))
                     if 'regions' in item:
                         for reg in item['regions']:
-                            fseg.write(u'{} {} {}\n'.format(item['utt'], reg[0], reg[1]-reg[0]))
+                            fseg.write(u'{} {} {}\n'.format(item['utt'], reg[0], reg[1] - reg[0]))
 
 
 def corpus_remove(name):

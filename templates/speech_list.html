@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="row">
+        <div class="container col-md-2 sameheight" style="background-color: lightblue;">
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    {% for item in items %}
+                        <li><a href="/speech/{{ collname }}/{{ item.id }}" target="speech_if">{{ item.utt }}<br>
+                            <span style="font-size: 8pt"> (edits# {{ item.edits }} -- wer% {{ '{:.2f}'.format(item.wer*100|float) }})</span>
+                        </a></li>
+                    {% endfor %}
+                </ul>
+                <div style="text-align: center">
+                    {% if prev>=0 %}
+                        <a href="/speech/{{ collname }}/list/{{ prev }}{{ page_args }}"> &#x219E; Prev &#x219E;</a>
+                    {% endif %}
+                    <a href="/speech/{{ collname }}/list/{{ next }}{{ page_args }}"> &#x21A0; Next &#x21A0;</a>
+                </div>
+                <div style="text-align: center">
+                    <a href="/"><span class="glyphicon glyphicon-remove-circle"></span>Zamknij</a>
+                </div>
+            </div>
+        </div>
+        <div class="container col-md-10 sameheight">
+            <iframe class="col-md-11 sameheight" src="{{ url_for('static', filename='speech_iframe.html') }}"
+                    name="speech_if"></iframe>
+        </div>
+    </div>
+{% endblock %}

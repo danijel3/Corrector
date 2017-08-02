@@ -4,6 +4,8 @@ from flask import Blueprint, render_template, abort, send_file, request
 
 from db import mongo
 
+from pymongo import DESCENDING
+
 speech_page = Blueprint('speech_page', __name__, template_folder='templates')
 
 items_per_page = 10
@@ -90,3 +92,27 @@ def regions(name):
     corp.update_one({'id': id}, {'$set': {'regions': reg}})
 
     return ''
+
+
+list_items_per_page = 10
+
+
+@speech_page.route('<name>/list', defaults={'offset': 0})
+@speech_page.route('<name>/list/<int:offset>')
+def list(name, offset):
+    coll = 'speech/' + name
+    if coll in mongo.db.collection_names():
+        corp = mongo.db[coll]
+    else:
+        return abort(404)
+
+    index_by = 'edits'
+    page_args = ''
+    if 'wer' in request.args:
+        page_args = '?wer'
+        index_by = 'wer'
+
+    items = corp.find().sort(index_by, DESCENDING).limit(list_items_per_page).skip(offset)
+
+    return render_template('speech_list.html', collname=name, items=items, next=offset + list_items_per_page,
+                           prev=offset - list_items_per_page, page_args=page_args)
