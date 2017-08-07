@@ -14,6 +14,7 @@
     <div id="speech" class="container">
 
         <h2>Zdanie:<b> {{ item.utt }}</b></h2>
+        <p>[WER: {{ item.wer }}% Edits: {{ item.edits }}#]</p>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
@@ -42,17 +43,21 @@
                     Odtwórz/Zatrzymaj
                 </button>
 
-                <button class="btn" onclick="add_region(1,2)">
+                <a href="/speech/{{ name }}/wav/{{ page }}">WAV</a>
+
+                <span style="float: right;">
+                    <button class=" btn" onclick="add_region(1,2)">
                     <span class="glyphicon glyphicon-plus"></span>
                     Dodaj region do pominięcia
-                </button>
+                    </button>
 
-                <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
+                    <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
 
-                <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ page }}')">
-                    <span class="glyphicon glyphicon-check"></span>
-                    Zapisz
-                </button>
+                    <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ page }}')">
+                        <span class="glyphicon glyphicon-check"></span>
+                        Zapisz
+                    </button>
+                </span>
             </div>
         </div>
 
