@@ -14,7 +14,7 @@
     <div id="speech" class="container">
 
         <h2>Zdanie:<b> {{ item.utt }}</b></h2>
-        <p>[WER: {{ item.wer }}% Edits: {{ item.edits }}#]</p>
+        <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
