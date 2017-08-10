@@ -1,10 +1,13 @@
 import os
 
-from flask import Blueprint, render_template, abort, send_file, request
+from flask import Blueprint, render_template, abort, send_file, request, make_response
 
 from db import mongo
 
 from pymongo import DESCENDING
+
+import wave
+from StringIO import StringIO
 
 speech_page = Blueprint('speech_page', __name__, template_folder='templates')
 
@@ -46,12 +49,41 @@ def wav(name, page):
     else:
         return abort(404)
 
-    path = corp.find_one({'id': page})['wav']
+    el = corp.find_one({'id': page})
+    path = el['wav']
+    if 'wav_s' in el:
+        wav_s = el['wav_s']
+        wav_e = el['wav_e']
+    else:
+        wav_s = -1.0
+        wav_e = -1.0
 
     if not os.path.exists(path):
         return abort(404)
 
-    return send_file(path, mimetype='audio/wav')
+    if wav_s < 0 or wav_e < 0:
+        return send_file(path, mimetype='audio/wav')
+    else:
+        f = wave.open(path, 'rb')
+        start = int(wav_s * f.getframerate())
+        end = int(wav_e * f.getframerate())
+        len = int(end - start)
+        f.setpos(start)
+        data = f.readframes(len)
+        params = f.getparams()
+        f.close()
+
+        wav_mem = StringIO()
+
+        f = wave.open(wav_mem, 'wb')
+        f.setparams(params)
+        f.setnframes(len)
+        f.writeframes(data)
+        f.close()
+
+        response = make_response(wav_mem.getvalue())
+        response.headers['Content-Type'] = 'audio/wav'
+        return response
 
 
 @speech_page.route('<name>/modify', methods=['POST'])

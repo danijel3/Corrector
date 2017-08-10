@@ -76,6 +76,7 @@ def corpus_import(path, type):
                     p = l[s + 1:].strip()
                     wav[id] = p
 
+        edits = None
         if os.path.exists(os.path.join(path, 'edits.txt')):
             edits = {}
             with codecs.open(os.path.join(path, 'edits.txt'), encoding='utf-8') as f:
@@ -85,6 +86,14 @@ def corpus_import(path, type):
                         id = l[:s].strip()
                         ed = int(l[s + 1:].strip())
                         edits[id] = ed
+
+        segs = None
+        if os.path.exists(os.path.join(path, 'segments')):
+            segs = {}
+            with codecs.open(os.path.join(path, 'segments'), encoding='utf-8') as f:
+                for l in f:
+                    t = l.split(' ')
+                    segs[t[0]] = (t[1], float(t[2]), float(t[3]))
 
         with codecs.open(os.path.join(path, 'text'), encoding='utf-8') as f:
             text = []
@@ -99,8 +108,17 @@ def corpus_import(path, type):
                     if (edits) and utt_id in edits:
                         eds = edits[utt_id]
                         wer = float(eds) / len(t.split(' '))
-                    text.append({'id': id, 'utt': utt_id, 'text': t, 'wav': wav[utt_id], 'corr': '', 'regions': [],
-                                 'edits': eds, 'wer': wer})
+                    if segs:
+                        seg = segs[utt_id]
+                        wav_id = seg[0]
+                        wav_s = seg[1]
+                        wav_e = seg[2]
+                    else:
+                        wav_id = utt_id
+                        wav_s = -1.0
+                        wav_e = -1.0
+                    text.append({'id': id, 'utt': utt_id, 'text': t, 'wav': wav[wav_id], 'corr': '', 'regions': [],
+                                 'edits': eds, 'wer': wer, 'wav_s': wav_s, 'wav_e': wav_e})
                     id += 1
 
         coll.insert_many(text)
