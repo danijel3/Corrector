@@ -4,7 +4,7 @@ import math
 from db import mongo
 
 norm_page = Blueprint('norm_page', __name__, template_folder='templates')
-items_per_page = 10
+items_per_page = 1
 
 
 @norm_page.route('<name>', defaults={'page': 0})

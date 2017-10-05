@@ -4,7 +4,7 @@ function update_norm(corp_name, item_id, el) {
         id: item_id,
         value: value
     });
-    el.parentNode.parentNode.className = 'warning';
+    el.parentNode.parentNode.className = 'norm_item modified';
 }
 
 function update_lex(corp_name, item_id, ph_idx, el) {
@@ -40,9 +40,9 @@ function diff_norm() {
         edit_norm();
     });
 
-    $('tr').each(function () {
+    $('.norm_item').each(function () {
         var norm = $(this).find('.norm .edit').text();
-        var corr = $(this).find('.corr .edit').text();
+        var corr = $(this).find('.corr .edit').val();
 
         if (!norm || !corr) return;
 
@@ -66,11 +66,11 @@ function diff_norm() {
     })
 
 
-    $('tr .edit').each(function () {
+    $('.norm_item .edit').each(function () {
         $(this).toggleClass('hide', true);
     });
 
-    $('tr .diff').each(function () {
+    $('.norm_item .diff').each(function () {
         $(this).toggleClass('hide', false);
     });
 }
@@ -82,11 +82,11 @@ function edit_norm() {
         diff_norm();
     });
 
-    $('tr .edit').each(function () {
+    $('.norm_item .edit').each(function () {
         $(this).toggleClass('hide', false);
     });
 
-    $('tr .diff').each(function () {
+    $('.norm_item .diff').each(function () {
         $(this).toggleClass('hide', true);
     });
 }

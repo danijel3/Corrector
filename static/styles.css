@@ -8,7 +8,11 @@
     height: 20em;
 }
 
-#speech .modified {
+.norm_item {
+    padding: 5px;
+}
+
+.modified {
     background-color: rgba(255, 200, 100, 0.3);
 }
 
