@@ -29,8 +29,13 @@
         <h2>Oryginał</h2>
         <div>{{ item.orig }}</div>
 
-        <h2>Normalizator</h2>
-        <div class="norm">
+        <h2>
+            <a href="#norm_c{{ item.id }}" data-toggle="collapse" aria-expanded="false"
+               aria-controls="norm_c{{ item.id }}">
+                Normalizator
+            </a>
+        </h2>
+        <div class="norm collapse" id="norm_c{{ item.id }}">
             <span class="edit">{{ item.norm }}</span>
             <span class="diff hide">test</span>
         </div>
