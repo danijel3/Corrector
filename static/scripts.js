@@ -1,11 +1,25 @@
-function update_norm(corp_name, item_id, el) {
-    var value = el.value;
+function update_norm(corp_name, item_id) {
+    var value = $('#edit_text').val();
     $.post('/norm/' + corp_name + '/modify', {
         id: item_id,
         value: value
     });
-    el.parentNode.parentNode.className = 'norm_item modified';
+    $('body').toggleClass('modified', true);
 }
+
+function revert_norm(corp_name, item_id) {
+    if (!confirm('Czy na pewno?'))
+        return;
+    $.post('/norm/' + corp_name + '/revert', {
+        id: item_id,
+    });
+    location.reload();
+}
+
+function norm_page(corp_name, page) {
+    window.location.href = '/norm/' + corp_name + '/' + page;
+}
+
 
 function update_lex(corp_name, item_id, ph_idx, el) {
     var value = el.value;
@@ -40,30 +54,28 @@ function diff_norm() {
         edit_norm();
     });
 
-    $('.norm_item').each(function () {
-        var norm = $(this).find('.norm .edit').text();
-        var corr = $(this).find('.corr .edit').val();
+    var norm = $('.norm .edit').text();
+    var corr = $('.corr .edit').val();
 
-        if (!norm || !corr) return;
+    if (!norm || !corr) return;
 
-        var diff = JsDiff.diffChars(norm, corr);
+    var diff = JsDiff.diffChars(norm, corr);
 
-        norm = ''
-        corr = ''
-        for (i = 0; i < diff.length; i++) {
-            if (diff[i].added) {
-                corr += '<d>' + diff[i].value + '</d>';
-            } else if (diff[i].removed) {
-                norm += '<d>' + diff[i].value + '</d>';
-            } else {
-                corr += diff[i].value;
-                norm += diff[i].value;
-            }
+    norm = '';
+    corr = '';
+    for (i = 0; i < diff.length; i++) {
+        if (diff[i].added) {
+            corr += '<d>' + diff[i].value + '</d>';
+        } else if (diff[i].removed) {
+            norm += '<d>' + diff[i].value + '</d>';
+        } else {
+            corr += diff[i].value;
+            norm += diff[i].value;
         }
+    }
 
-        $(this).find('.norm .diff').html(norm);
-        $(this).find('.corr .diff').html(corr);
-    })
+    $('.norm .diff').html(norm);
+    $('.corr .diff').html(corr);
 
 
     $('.norm_item .edit').each(function () {

@@ -15,69 +15,73 @@
             <button id="diff_btn" class="btn">Diff</button>
         </p>
         <script type="text/javascript">
-            $('#diff_btn').click(function () {
-                diff_norm();
-            });
+            $('#diff_btn').click(diff_norm);
+
+            {% if item.corr %}
+                $('body').toggleClass('modified', true);
+            {% endif %}
+
         </script>
 
-        {% for item in items %}
+
+        <div class="norm_item">
+            <h2>Oryginał</h2>
+            <div>{{ item.orig }}</div>
+
+            <h2>
+                <a href="#norm_c{{ item.id }}" data-toggle="collapse" aria-expanded="false"
+                   aria-controls="norm_c{{ item.id }}">
+                    Normalizator
+                </a>
+            </h2>
+            <div class="norm collapse" id="norm_c{{ item.id }}">
+                <span class="edit">{{ item.norm }}</span>
+                <span class="diff hide">test</span>
+            </div>
+
+            <h2>Korekta</h2>
             {% if item.corr %}
-                <div class="norm_item modified">
+                {% set input_value =  item.corr %}
             {% else %}
-                <div class="norm_item">
+                {% set input_value =  item.norm %}
             {% endif %}
-        <h2>Oryginał</h2>
-        <div>{{ item.orig }}</div>
 
-        <h2>
-            <a href="#norm_c{{ item.id }}" data-toggle="collapse" aria-expanded="false"
-               aria-controls="norm_c{{ item.id }}">
-                Normalizator
-            </a>
-        </h2>
-        <div class="norm collapse" id="norm_c{{ item.id }}">
-            <span class="edit">{{ item.norm }}</span>
-            <span class="diff hide">test</span>
+            <div class="corr">
+                <textarea id="edit_text" class="edit" spellcheck="true" type="text"
+                          onchange="update_norm('{{ name }}','{{ item.id }}');">{{ input_value }}</textarea>
+                <span class="diff hide">test</span>
+            </div>
+            <div class="edit">
+                <button class="btn btn-primary"
+                        onclick="update_norm('{{ name }}','{{ item.id }}');">
+                    Zatwierdź bez zmian
+                </button>
+                <button class="btn btn-danger" onclick="revert_norm('{{ name }}','{{ item.id }}');">Anuluj zmiany
+                </button>
+            </div>
         </div>
 
-        <h2>Korekta</h2>
-        {% if item.corr %}
-            {% set input_value =  item.corr %}
-        {% else %}
-            {% set input_value =  item.norm %}
-        {% endif %}
-
-        <div class="corr">
-                <textarea class="edit" spellcheck="true" type="text"
-                          onchange="update_norm('{{ name }}','{{ item.id }}',this);">{{ input_value }}</textarea>
-            <span class="diff hide">test</span>
-        </div>
-        </div>
-        {% endfor %}
-
-        <div style="text-align: center">
-            <ul class="pagination">
-                {% for p in range(pagination_start,pagination_end) %}
-                    {% set text = p|string %}
-                    {% if p == pagination_start %}
-                        {% set text = '...' + text %}
-                    {% elif p==pagination_end-1 %}
-                        {% set text = text + '...' %}
-                    {% endif %}
-                    {% if p - 1 == page %}
-                        <li class="active"><a href="/norm/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
-                    {% else %}
-                        <li><a href="/norm/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-
+        <div class="container" style="text-align: center">
+            <p>Strona:</p>
+            {% if page==1 %}
+                <span>&lt;&lt; Poprzednia</span>
+                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                <a class="btn" href="{{ name }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+            {% elif page==page_num %}
+                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                <span>Następna &gt;&gt;</span>
+            {% else %}
+                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+            {% endif %}
+            <p><a href="/norm/{{ name }}/list">Lista wszystkich stron</a></p>
         </div>
 
         <script type="text/javascript">
             autosize($('textarea'));
         </script>
 
-
+    </div>
 {% endblock %}

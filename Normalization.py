@@ -4,10 +4,9 @@ import math
 from db import mongo
 
 norm_page = Blueprint('norm_page', __name__, template_folder='templates')
-items_per_page = 1
 
 
-@norm_page.route('<name>', defaults={'page': 0})
+@norm_page.route('<name>', defaults={'page': 1})
 @norm_page.route('<name>/<int:page>')
 def norm(name, page):
     coll = 'norm/' + name
@@ -17,27 +16,16 @@ def norm(name, page):
         return abort(404)
 
     item_num = mongo.db.corpora.find_one({'coll': coll})['num']
-    page_num = int(math.ceil(item_num / float(items_per_page)))
 
-    if page >= page_num:
-        return abort(403)
+    if page > item_num or page < 1:
+        return abort(404)
 
-    start = page * items_per_page
+    item = corp.find_one({'id': page - 1})
 
-    items = corp.find({'id': {'$gte': start}}).limit(items_per_page)
+    if not item:
+        return abort(404)
 
-    pagination_start = page - 10
-    if pagination_start < 1:
-        pagination_start = 1
-    pagination_end = pagination_start + 22
-    if pagination_end > page_num + 1:
-        pagination_end = page_num + 1
-        pagination_start = pagination_end - 22
-        if pagination_start < 1:
-            pagination_start = 1
-
-    return render_template('norm.html', name=name, page=page, items=items, page_num=page_num,
-                           pagination_start=pagination_start, pagination_end=pagination_end)
+    return render_template('norm.html', name=name, page=page, page_num=item_num, item=item)
 
 
 @norm_page.route('<name>/modify', methods=['POST'])
@@ -53,3 +41,33 @@ def modify(name):
     corp.update_one({'id': id}, {'$set': {'corr': value}})
 
     return ''
+
+
+@norm_page.route('<name>/revert', methods=['POST'])
+def revert(name):
+    coll = 'norm/' + name
+    id = int(request.form['id'])
+    if coll in mongo.db.collection_names():
+        corp = mongo.db[coll]
+    else:
+        return abort(404)
+
+    corp.update_one({'id': id}, {'$set': {'corr': ''}})
+
+    return ''
+
+
+@norm_page.route('<name>/list')
+def list(name):
+    coll = 'norm/' + name
+    if coll in mongo.db.collection_names():
+        corp = mongo.db[coll]
+    else:
+        return abort(404)
+
+    pages = []
+    items = corp.find()
+    for item in items:
+        pages.append({'id': item['id'], 'modified': (len(item['corr']) > 0)})
+
+    return render_template('norm_list.html', name=name, pages=pages)
