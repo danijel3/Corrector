@@ -143,10 +143,7 @@ def corpus_export(path, name, type):
     if type == 'norm':
         with codecs.open(os.path.join(path, 'corr.txt'), mode='w', encoding='utf-8') as f:
             for item in coll.find():
-                if item['corr']:
-                    f.write(item['corr'] + '\n')
-                else:
-                    f.write(item['norm'] + '\n')
+                f.write(item['corr'].replace('\n',' ') + '\n')
     elif type == 'lex':
         with codecs.open(os.path.join(path, 'lexicon.txt'), mode='w', encoding='utf-8') as f:
             for item in coll.find():
