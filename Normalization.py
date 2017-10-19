@@ -28,6 +28,31 @@ def norm(name, page):
     return render_template('norm.html', name=name, page=page, page_num=item_num, item=item)
 
 
+@norm_page.route('<name>/saved', defaults={'page': 0})
+@norm_page.route('<name>/saved/<int:page>')
+def saved(name, page):
+    coll = 'norm/' + name
+    if coll in mongo.db.collection_names():
+        corp = mongo.db[coll]
+    else:
+        return abort(404)
+
+    item_num = mongo.db.corpora.find_one({'coll': coll})['num']
+
+    if page >= item_num or page < 0:
+        return abort(404)
+
+    item = corp.find_one({'id': page})
+
+    if not item:
+        return abort(404)
+
+    if 'corr' in item and item['corr']:
+        return item['corr']
+    else:
+        return 'NIE ZAPISANO ZMIAN!'
+
+
 @norm_page.route('<name>/modify', methods=['POST'])
 def modify(name):
     coll = 'norm/' + name

@@ -48,16 +48,23 @@
 
             <div class="corr">
                 <textarea id="edit_text" class="edit" spellcheck="true" type="text"
-                          onchange="update_norm('{{ name }}','{{ item.id }}');">{{ input_value }}</textarea>
+                          onkeyup="update_norm('{{ name }}','{{ item.id }}');">{{ input_value }}</textarea>
                 <span class="diff hide">test</span>
             </div>
             <div class="edit">
-                <button class="btn btn-primary"
+                <button class="btn btn-success"
                         onclick="update_norm('{{ name }}','{{ item.id }}');">
-                    Zatwierdź bez zmian
+                    Zapisz
                 </button>
-                <button class="btn btn-danger" onclick="revert_norm('{{ name }}','{{ item.id }}');">Anuluj zmiany
+                <button class="btn btn-danger" onclick="revert_norm('{{ name }}','{{ item.id }}');">Anuluj wszystkie
+                    zmiany
                 </button>
+                <button class="btn btn-info" onclick="show_saved('{{ name }}','{{ item.id }}');">Co zapisano na
+                    serwerze?
+                </button>
+                <p id="save_info" style="float:right">
+                    <span class="glyphicon glyphicon-ok green" aria-hidden="true"></span> Zapisano
+                </p>
             </div>
         </div>
 
@@ -84,4 +91,22 @@
         </script>
 
     </div>
+
+    <div id="savedDialog" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Co zapisano na serwerze?</h4>
+                </div>
+                <div class="modal-body" id="savedContent">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 {% endblock %}

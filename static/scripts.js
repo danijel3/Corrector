@@ -1,10 +1,34 @@
+var norm_to_update = false;
+
 function update_norm(corp_name, item_id) {
+    $('#save_info').html('<span class="glyphicon glyphicon-refresh blue" aria-hidden="true"></span> Zapisuję...');
+    if (norm_to_update)
+        return;
+    norm_to_update = true;
+    setTimeout(function () {
+        update_norm_call(corp_name, item_id);
+    }, 1000);
+}
+
+function update_norm_call(corp_name, item_id) {
+    $('#save_info').html('<span class="glyphicon glyphicon-refresh blue" aria-hidden="true"></span> Zapisuję...');
+    norm_to_update = false;
     var value = $('#edit_text').val();
     $.post('/norm/' + corp_name + '/modify', {
         id: item_id,
         value: value
+    }).done(function () {
+        $('body').toggleClass('modified', true);
+        $('#save_info').html('<span class="glyphicon glyphicon-ok green" aria-hidden="true"></span> Zapisałem!');
+    }).fail(function () {
+        $('#save_info').html('<span class="glyphicon glyphicon-remove red" aria-hidden="true"></span> Bład zapisywania!');
+        norm_to_update = true;
+    }).always(function () {
+        if (norm_to_update)
+            setTimeout(function () {
+                update_norm_call(corp_name, item_id);
+            }, 1000);
     });
-    $('body').toggleClass('modified', true);
 }
 
 function revert_norm(corp_name, item_id) {
@@ -14,6 +38,13 @@ function revert_norm(corp_name, item_id) {
         id: item_id,
     });
     location.reload();
+}
+
+function show_saved(corp_name, item_id) {
+    $.get('/norm/' + corp_name + '/saved/' + item_id, function (text) {
+        $('#savedContent').html(text);
+        $('#savedDialog').modal();
+    });
 }
 
 function norm_page(corp_name, page) {
