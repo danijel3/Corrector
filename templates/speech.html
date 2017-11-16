@@ -6,15 +6,19 @@
             <p>Mowa <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
             </p>
             <div><a href="/">Powrót na główną stronę</a></div>
-            <div><a href="/speech/{{ name }}/list">Lista błędów edycyjnych</a></div>
-            <div><a href="/speech/{{ name }}/list?wer">Lista WER</a></div>
+	    {% if item.wer %}
+                <div><a href="/speech/{{ name }}/list">Lista błędów edycyjnych</a></div>
+                <div><a href="/speech/{{ name }}/list?wer">Lista WER</a></div>
+	    {% endif %}
         </div>
     </div>
 
     <div id="speech" class="container">
 
         <h2>Zdanie:<b> {{ item.utt }}</b></h2>
-        <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
+	{% if item.wer %}
+	    <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
+	{% endif %}
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
