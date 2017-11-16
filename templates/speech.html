@@ -6,7 +6,7 @@
             <p>Mowa <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
             </p>
             <div><a href="/">Powrót na główną stronę</a></div>
-	    {% if item.wer %}
+	    {% if item.wer is defined %}
                 <div><a href="/speech/{{ name }}/list">Lista błędów edycyjnych</a></div>
                 <div><a href="/speech/{{ name }}/list?wer">Lista WER</a></div>
 	    {% endif %}
@@ -16,7 +16,7 @@
     <div id="speech" class="container">
 
         <h2>Zdanie:<b> {{ item.utt }}</b></h2>
-	{% if item.wer %}
+	{% if item.wer is defined %}
 	    <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
 	{% endif %}
 
