@@ -54,19 +54,30 @@ def speech(name, index, page):
     return render_template('speech.html', name=name, index=index, page=page, item=item, page_num=page_num)
 
 
-@speech_page.route('<name>/wav/<int:page>')
-def wav(name, page):
+@speech_page.route('<name>/<index>/wav/<int:page>')
+def wav(name, index, page):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
         corp = mongo.db[coll]
     else:
         return abort(404)
 
-    el = corp.find_one({'id': page})
-    path = el['wav']
-    if 'wav_s' in el:
-        wav_s = el['wav_s']
-        wav_e = el['wav_e']
+    corp_info = mongo.db.corpora.find_one({'coll': coll})
+
+    if index == 'default':
+        item = corp.find_one({'id': page})
+    else:
+        if 'index_num' in corp_info and index in corp_info['index_num']:
+            item = corp.find_one({'index.{}'.format(index): page})
+        else:
+            return abort(404)
+
+    if not item:
+        return abort(404)
+    path = item['wav']
+    if 'wav_s' in item:
+        wav_s = item['wav_s']
+        wav_e = item['wav_e']
     else:
         wav_s = -1.0
         wav_e = -1.0
