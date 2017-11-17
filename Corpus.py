@@ -19,7 +19,7 @@ def list_import(path):
 
 
 def corpus_import(path, type):
-    name = urllib.quote_plus(os.path.basename(path))
+    name = urllib.parse.quote(os.path.basename(path))
     collname = type + '/' + name
     if collname in mongo.db.collection_names():
         mongo.db[collname].drop()
