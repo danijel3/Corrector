@@ -5,34 +5,36 @@
             <h1>Korpus "{{ name }}"</h1>
             <p>Mowa <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
             </p>
+            {% if index != 'default' %}
+                <p>Indeks: {{ index }}</p>
+            {% endif %}
+            <div><a href="/speech/{{ name }}/index">Indeksy korpusu</a></div>
             <div><a href="/">Powrót na główną stronę</a></div>
-	    {% if item.wer is defined %}
-                <div><a href="/speech/{{ name }}/list">Lista błędów edycyjnych</a></div>
-                <div><a href="/speech/{{ name }}/list?wer">Lista WER</a></div>
-	    {% endif %}
         </div>
     </div>
 
     <div id="speech" class="container">
 
+        {#        <ul>#}
+        {#            {% for idx,num in item.index.iteritems() %}#}
+        {#                <li>{{ idx }}: {{ num }}</li>#}
+        {#            {% endfor %}#}
+        {#        </ul>#}
+
         <h2>Zdanie:<b> {{ item.utt }}</b></h2>
-	{% if item.wer is defined %}
-	    <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
-	{% endif %}
+        {% if item.wer is defined %}
+            <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
+        {% endif %}
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
 
         <div class="panel panel-default">
             <div class="panel-body">
-                {#                <audio controls preload="none" style="width: 100%">#}
-                {#                    <source id="audio-source"#}
-                {#                            src="/speech/{{ name }}/wav/{{ page }}">#}
-                {#                    Cannot play audio!#}
-                {#                </audio>#}
+                <input id="slider" type="range" min="100" max="300" value="100" style="width: 100%">
                 <div id="waveform"></div>
 
-                <script src="{{ url_for('static', filename='speech.js') }}"></script>
+                <script src="{{ url_for('static', filename='speech.js') }}?ver=2"></script>
                 <script type="text/javascript">
                     wavesurfer.load('/speech/{{ name }}/wav/{{ page }}');
                     wavesurfer.on('ready', function () {
@@ -57,7 +59,7 @@
 
                     <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
 
-                    <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ page }}')">
+                    <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ item.id }}')">
                         <span class="glyphicon glyphicon-check"></span>
                         Zapisz
                     </button>
@@ -79,11 +81,15 @@
             <div class="panel-heading">
                 Korekta
                 <span style="float:right; position: relative; top:-7px">
-                    <button id="save_btn" class="btn" onclick="save_speech('{{ name }}','{{ page }}')">
+                    <button id="save_btn" class="btn btn-success" onclick="save_speech('{{ name }}','{{ item.id }}')">
                         <span class="glyphicon glyphicon-check"></span>
                         Zapisz
                     </button>
                     <button id="diff_btn" class="btn btn-info">Diff</button>
+                    <button id="save_btn" class="btn btn-danger" onclick="undo_speech('{{ name }}','{{ item.id }}')">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        Usuń zmiany
+                    </button>
                 </span>
 
                 <script type="text/javascript">
@@ -108,22 +114,22 @@
             </div>
         </div>
 
-        <div style="text-align: center">
-            <ul class="pagination">
-                {% for p in range(pagination_start,pagination_end) %}
-                    {% set text = p|string %}
-                    {% if p == pagination_start %}
-                        {% set text = '...' + text %}
-                    {% elif p==pagination_end-1 %}
-                        {% set text = text + '...' %}
-                    {% endif %}
-                    {% if p - 1 == page %}
-                        <li class="active"><a href="/speech/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
-                    {% else %}
-                        <li><a href="/speech/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+        <div class="container" style="text-align: center">
+            <p>Strona:</p>
+            {% if page==0 %}
+                <span>&lt;&lt; Poprzednia</span>
+                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+            {% elif page==page_num-1 %}
+                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                <span>Następna &gt;&gt;</span>
+            {% else %}
+                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+            {% endif %}
+            <p><a href="/speech/{{ name }}/{{ index }}/list">Lista wszystkich stron</a></p>
         </div>
     </div>
 

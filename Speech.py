@@ -1,44 +1,57 @@
 import os
+import wave
+from io import BytesIO
 
 from flask import Blueprint, render_template, abort, send_file, request, make_response
+from pymongo import ASCENDING
 
 from db import mongo
 
-from pymongo import DESCENDING
-
-import wave
-from StringIO import StringIO
-
 speech_page = Blueprint('speech_page', __name__, template_folder='templates')
 
-items_per_page = 10
+
+@speech_page.route('<name>/index')
+def index(name):
+    coll = 'speech/' + name
+    if coll not in mongo.db.collection_names():
+        return abort(404)
+
+    corp_info = mongo.db.corpora.find_one({'coll': coll})
+
+    indices = ['default']
+
+    if 'index_num' in corp_info:
+        for index in corp_info['index_num'].keys():
+            indices.append(index)
+
+    return render_template('speech_index.html', name=name, indices=indices)
 
 
-@speech_page.route('<name>', defaults={'page': 0})
-@speech_page.route('<name>/<int:page>')
-def speech(name, page):
+@speech_page.route('<name>', defaults={'index': 'default', 'page': 0})
+@speech_page.route('<name>/<index>/<int:page>')
+def speech(name, index, page):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
         corp = mongo.db[coll]
     else:
         return abort(404)
 
-    item_num = mongo.db.corpora.find_one({'coll': coll})['num']
+    corp_info = mongo.db.corpora.find_one({'coll': coll})
 
-    item = corp.find_one({'id': page})
+    if index == 'default':
+        item = corp.find_one({'id': page})
+        page_num = corp_info['num']
+    else:
+        if 'index_num' in corp_info and index in corp_info['index_num']:
+            item = corp.find_one({'index.{}'.format(index): page})
+            page_num = corp_info['index_num'][index]
+        else:
+            return abort(404)
 
-    pagination_start = page - 10
-    if pagination_start < 1:
-        pagination_start = 1
-    pagination_end = pagination_start + 22
-    if pagination_end > item_num:
-        pagination_end = item_num
-        pagination_start = pagination_end - 22
-        if pagination_start < 1:
-            pagination_start = 1
+    if not item:
+        return abort(404)
 
-    return render_template('speech.html', name=name, page=page, item=item, item_num=item_num,
-                           pagination_start=pagination_start, pagination_end=pagination_end)
+    return render_template('speech.html', name=name, index=index, page=page, item=item, page_num=page_num)
 
 
 @speech_page.route('<name>/wav/<int:page>')
@@ -73,7 +86,7 @@ def wav(name, page):
         params = f.getparams()
         f.close()
 
-        wav_mem = StringIO()
+        wav_mem = BytesIO()
 
         f = wave.open(wav_mem, 'wb')
         f.setparams(params)
@@ -90,7 +103,6 @@ def wav(name, page):
 def modify(name):
     coll = 'speech/' + name
     id = int(request.form['id'])
-    value = request.form['value']
     if coll in mongo.db.collection_names():
         corp = mongo.db[coll]
     else:
@@ -98,10 +110,11 @@ def modify(name):
 
     text = corp.find_one({'id': id})['text']
 
-    if text != value:
-        corp.update_one({'id': id}, {'$set': {'corr': value}})
-    else:
+    if 'undo' in request.form:
         corp.update_one({'id': id}, {'$set': {'corr': ''}})
+    else:
+        value = request.form['value']
+        corp.update_one({'id': id}, {'$set': {'corr': value}})
 
     return ''
 
@@ -110,8 +123,8 @@ def modify(name):
 def regions(name):
     coll = 'speech/' + name
     id = int(request.form['id'])
-    reg_start = request.form.getlist('reg_start[]');
-    reg_end = request.form.getlist('reg_end[]');
+    reg_start = request.form.getlist('reg_start[]')
+    reg_end = request.form.getlist('reg_end[]')
     if coll in mongo.db.collection_names():
         corp = mongo.db[coll]
     else:
@@ -129,22 +142,36 @@ def regions(name):
 list_items_per_page = 10
 
 
-@speech_page.route('<name>/list', defaults={'offset': 0})
-@speech_page.route('<name>/list/<int:offset>')
-def list(name, offset):
+@speech_page.route('<name>/<index>/list')
+def list(name, index):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
         corp = mongo.db[coll]
     else:
         return abort(404)
 
-    index_by = 'edits'
-    page_args = ''
-    if 'wer' in request.args:
-        page_args = '?wer'
-        index_by = 'wer'
+    if index == 'default':
+        items = corp.find()
+    else:
+        idx = 'index.{}'.format(index)
+        items = corp.find({}, sort=[(idx, ASCENDING)], hint=[(idx, ASCENDING)])
 
-    items = corp.find().sort(index_by, DESCENDING).limit(list_items_per_page).skip(offset)
+    itemlist = []
 
-    return render_template('speech_list.html', collname=name, items=items, next=offset + list_items_per_page,
-                           prev=offset - list_items_per_page, page_args=page_args)
+    for item in items:
+        i = {}
+        i['utt'] = item['utt']
+
+        if index == 'default':
+            i['id'] = item['id']
+        else:
+            i['id'] = item['index'][index]
+
+        if item['corr'] or len(item['regions']) > 0:
+            i['mod'] = True
+        else:
+            i['mod'] = False
+
+        itemlist.append(i)
+
+    return render_template('speech_list.html', name=name, index=index, items=itemlist)

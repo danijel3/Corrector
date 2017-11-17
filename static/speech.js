@@ -6,7 +6,13 @@ var wavesurfer = WaveSurfer.create({
     height: 256
 });
 
-var regions = Array();
+var slider = document.querySelector('#slider');
+slider.oninput = function () {
+    var zoomLevel = Number(slider.value);
+    wavesurfer.zoom(zoomLevel);
+};
+
+var regions = [];
 
 function add_region(start, end) {
 
@@ -32,8 +38,8 @@ function add_region(start, end) {
 
 function save_regions(corp_name, item_id) {
 
-    regs = Array();
-    rege = Array();
+    regs = [];
+    rege = [];
 
     for (var i = 0; i < regions.length; i++) {
         regs.push(regions[i].start);
@@ -105,10 +111,19 @@ function save_speech(corp_name, item_id) {
         id: item_id,
         value: value
     });
-    $('#save_btn').toggleClass('btn-success', false);
+    $('#corr').toggleClass('modified', true);
+}
+
+function undo_speech(corp_name, item_id) {
+    if (!confirm('Czy na pewno?'))
+        return;
+    $.post('/speech/' + corp_name + '/modify', {
+        id: item_id,
+        undo: true
+    });
+    location.reload();
 }
 
 function update_speech() {
-    $('#save_btn').toggleClass('btn-success', true);
     $('#corr').toggleClass('modified', true);
 }

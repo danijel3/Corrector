@@ -35,7 +35,7 @@ function revert_norm(corp_name, item_id) {
     if (!confirm('Czy na pewno?'))
         return;
     $.post('/norm/' + corp_name + '/revert', {
-        id: item_id,
+        id: item_id
     });
     location.reload();
 }
@@ -51,6 +51,9 @@ function norm_page(corp_name, page) {
     window.location.href = '/norm/' + corp_name + '/' + page;
 }
 
+function speech_page(corp_name, index, page) {
+    window.location.href = '/speech/' + corp_name + '/' + index + '/' + page;
+}
 
 function update_lex(corp_name, item_id, ph_idx, el) {
     var value = el.value;

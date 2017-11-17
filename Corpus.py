@@ -1,11 +1,10 @@
-import os
 import codecs
-import urllib
-import shutil
+import os
 import re
+import shutil
+import urllib
 
 from db import mongo
-from pymongo import DESCENDING
 
 re_sp = re.compile('\s+')
 
@@ -26,6 +25,9 @@ def corpus_import(path, type):
         mongo.db[collname].drop()
         mongo.db.corpora.delete_many({'coll': collname})
     coll = mongo.db[collname]
+
+    id = 0
+    indices_num = {}
 
     if type == 'norm':
         db = []
@@ -95,6 +97,25 @@ def corpus_import(path, type):
                     t = l.split(' ')
                     segs[t[0]] = (t[1], float(t[2]), float(t[3]))
 
+        index = {}
+        indices = []
+        if os.path.exists(os.path.join(path, 'index')):
+            with codecs.open(os.path.join(path, 'index'), encoding='utf-8') as f:
+                indices = f.readline().strip().split(' ')
+                for idx in indices:
+                    indices_num[idx] = 0
+
+                for l in f:
+                    ind = {}
+                    i = l.split(' ')
+                    for x, n in enumerate(i[1:]):
+                        n = int(n)
+                        if n >= 0:
+                            idx = indices[x]
+                            ind[idx] = n
+                            indices_num[idx] += 1
+                    index[i[0]] = ind
+
         with codecs.open(os.path.join(path, 'text'), encoding='utf-8') as f:
             text = []
             id = 0
@@ -117,15 +138,20 @@ def corpus_import(path, type):
                         wav_id = utt_id
                         wav_s = -1.0
                         wav_e = -1.0
+
+                    idx = {}
+                    if utt_id in index:
+                        idx = index[utt_id]
+
                     text.append({'id': id, 'utt': utt_id, 'text': t, 'wav': wav[wav_id], 'corr': '', 'regions': [],
-                                 'edits': eds, 'wer': wer, 'wav_s': wav_s, 'wav_e': wav_e})
+                                 'edits': eds, 'wer': wer, 'wav_s': wav_s, 'wav_e': wav_e, 'index': idx})
                     id += 1
 
         coll.insert_many(text)
-        coll.create_index([('edits', DESCENDING)])
-        coll.create_index([('wer', DESCENDING)])
+        for idx in indices:
+            coll.create_index('index.{}'.format(idx), sparse=True)
 
-    corp = {'kind': type, 'name': name, 'coll': collname, 'num': id}
+    corp = {'kind': type, 'name': name, 'coll': collname, 'num': id, 'index_num': indices_num}
     mongo.db.corpora.insert_one(corp)
 
 
@@ -143,7 +169,7 @@ def corpus_export(path, name, type):
     if type == 'norm':
         with codecs.open(os.path.join(path, 'corr.txt'), mode='w', encoding='utf-8') as f:
             for item in coll.find():
-                f.write(item['corr'].replace('\n',' ') + '\n')
+                f.write(item['corr'].replace('\n', ' ') + '\n')
     elif type == 'lex':
         with codecs.open(os.path.join(path, 'lexicon.txt'), mode='w', encoding='utf-8') as f:
             for item in coll.find():
