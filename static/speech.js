@@ -22,6 +22,11 @@ function add_region(start, end) {
         color: 'rgba(255, 0, 0, 0.5)'
     });
 
+    reg.element.children[0].style.width='4px';
+    //reg.element.children[0].style.maxWidth='5px';
+    reg.element.children[1].style.width='4px';
+    //reg.element.children[1].style.maxWidth='5px';
+
     reg.on('dblclick', function () {
         reg.remove();
         var idx = regions.indexOf(reg);
