@@ -13,6 +13,7 @@ slider.oninput = function () {
 };
 
 var regions = [];
+var region_modified = false;
 
 function add_region(start, end) {
 
@@ -22,9 +23,9 @@ function add_region(start, end) {
         color: 'rgba(255, 0, 0, 0.5)'
     });
 
-    reg.element.children[0].style.width='4px';
+    reg.element.children[0].style.width = '4px';
     //reg.element.children[0].style.maxWidth='5px';
-    reg.element.children[1].style.width='4px';
+    reg.element.children[1].style.width = '4px';
     //reg.element.children[1].style.maxWidth='5px';
 
     reg.on('dblclick', function () {
@@ -37,7 +38,12 @@ function add_region(start, end) {
         wavesurfer.play(reg.end);
     });
 
+    reg.on('update', function () {
+        region_modified = true;
+    });
+
     regions.push(reg);
+    region_modified = true;
 }
 
 
@@ -58,6 +64,8 @@ function save_regions(corp_name, item_id) {
         reg_start: regs,
         reg_end: rege
     });
+
+    region_modified = false;
 }
 
 function diff_norm() {
@@ -110,6 +118,8 @@ function edit_norm() {
     $('#corr_diff').toggleClass('hide', true);
 }
 
+var speech_modified = false;
+
 function save_speech(corp_name, item_id) {
     var value = $('#corr').val();
     $.post('/speech/' + corp_name + '/modify', {
@@ -117,6 +127,7 @@ function save_speech(corp_name, item_id) {
         value: value
     });
     $('#corr').toggleClass('modified', true);
+    speech_modified = false;
 }
 
 function undo_speech(corp_name, item_id) {
@@ -131,4 +142,13 @@ function undo_speech(corp_name, item_id) {
 
 function update_speech() {
     $('#corr').toggleClass('modified', true);
+    speech_modified = true;
 }
+
+window.onbeforeunload = function () {
+    if (region_modified)
+        return 'Nie zapisano zmian w obszarach! Czy na pewno chcesz opuścić stronę?';
+    if (speech_modified)
+        return 'Nie zapisano zmian w transkrypcji! Czy na pewno chcesz opuścić stronę?';
+    return null;
+};

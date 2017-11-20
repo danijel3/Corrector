@@ -34,7 +34,7 @@
                 <input id="slider" type="range" min="100" max="300" value="100" style="width: 100%">
                 <div id="waveform"></div>
 
-                <script src="{{ url_for('static', filename='speech.js') }}?ver=3"></script>
+                <script src="{{ url_for('static', filename='speech.js') }}?ver=4"></script>
                 <script type="text/javascript">
                     wavesurfer.load('/speech/{{ name }}/{{ index }}/wav/{{ page }}');
                     wavesurfer.on('ready', function () {
