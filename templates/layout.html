@@ -31,6 +31,14 @@
 
 </head>
 <body>
+<div style="background-color: black">
+    {% if g.identity.id %}
+        <div class="container" style="text-align:right">
+            <span style="color:gray;">Zalogowany jako: {{ g.identity.id }} -- </span>
+            <a href="/logout" style="color: white">Wyloguj</a>
+        </div>
+    {% endif %}
+</div>
 {% block body %} {% endblock %}
 </body>
 </html>

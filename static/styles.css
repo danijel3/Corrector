@@ -28,16 +28,6 @@
     display: none;
 }
 
-d {
-    color: red;
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.admin {
-    display: none;
-}
-
 .fixed-table {
     table-layout: fixed;
     word-wrap: break-word;

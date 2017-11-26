@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, abort, request
 import math
 import re
 
+from flask import Blueprint, render_template, abort, request
+
+from auth import user_permission
 from db import mongo
 
 lex_page = Blueprint('lex_page', __name__, template_folder='templates')
@@ -10,6 +12,7 @@ items_per_page = 100
 
 @lex_page.route('<name>', defaults={'page': 0})
 @lex_page.route('<name>/<int:page>')
+@user_permission.require()
 def show(name, page):
     coll = 'lex/' + name
     if coll in mongo.db.collection_names():
@@ -45,6 +48,7 @@ re_sp = re.compile('\s+')
 
 
 @lex_page.route('<name>/modify', methods=['POST'])
+@user_permission.require()
 def modify(name):
     coll = 'lex/' + name
     id = int(request.form['id'])
@@ -63,6 +67,7 @@ def modify(name):
 
 
 @lex_page.route('<name>/add', methods=['POST'])
+@user_permission.require()
 def add(name):
     coll = 'lex/' + name
     id = int(request.form['id'])
@@ -77,6 +82,7 @@ def add(name):
 
 
 @lex_page.route('<name>/rem', methods=['POST'])
+@user_permission.require()
 def rem(name):
     coll = 'lex/' + name
     id = int(request.form['id'])
@@ -88,7 +94,7 @@ def rem(name):
 
     phones = corp.find_one({'id': id})['phon']
 
-    phones.pop(idx);
+    phones.pop(idx)
 
     corp.update_one({'id': id}, {'$set': {'phon': phones}})
 

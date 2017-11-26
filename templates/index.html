@@ -10,29 +10,13 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        function io_redirect(destination, arg) {
-            var pass = prompt('Enter password');
-            path = destination + '?pass=' + pass;
-            if (arg != null) {
-                path += '&' + arg;
-            }
-            window.location.href = path;
-        }
-        function admin_switch() {
-            $('.admin').css('display', 'inline');
-            $('#admin_btn').prop('disabled', true);
-        }
-    </script>
-
-    <div class="container">
-        <button id="admin_btn" class="btn" onclick="admin_switch()">
-            <span class="glyphicon glyphicon-off" aria-hidden="true"></span> Admin
-        </button>
-        <button class="btn admin" onclick="io_redirect('/import',null)">
-            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Import
-        </button>
-    </div>
+    {% if is_admin %}
+        <div class="container">
+            <a class="btn btn-info" href="/import">
+                <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Import
+            </a>
+        </div>
+    {% endif %}
 
 
     <div class="container">
@@ -50,15 +34,18 @@
                         <td>
                             <a href="{{ c.coll }}">{{ c.name }}</a>
                         </td>
-                        <td>
-                            <button class="btn btn-info admin"
-                                    onclick="io_redirect('/export','corp={{ c.coll }}&type={{ c.kind }}')">
-                                <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Export
-                            </button>
-                            <button class="btn btn-danger admin" onclick="io_redirect('/remove','corp={{ c.coll }}')">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
-                            </button>
-                        </td>
+                        {% if is_admin %}
+                            <td>
+                                <a class="btn btn-info" href="/export?corp={{ c.coll }}&type={{ c.kind }}"
+                                   onclick="return confirm('Na pewno?')">
+                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Export
+                                </a>
+                                <a class="btn btn-danger" href="/remove?corp={{ c.coll }}"
+                                   onclick="return confirm('Na pewno?')">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
+                                </a>
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </table>

@@ -5,12 +5,14 @@ from io import BytesIO
 from flask import Blueprint, render_template, abort, send_file, request, make_response
 from pymongo import ASCENDING
 
+from auth import user_permission
 from db import mongo
 
 speech_page = Blueprint('speech_page', __name__, template_folder='templates')
 
 
 @speech_page.route('<name>/index')
+@user_permission.require()
 def index(name):
     coll = 'speech/' + name
     if coll not in mongo.db.collection_names():
@@ -29,6 +31,7 @@ def index(name):
 
 @speech_page.route('<name>', defaults={'index': 'default', 'page': 0})
 @speech_page.route('<name>/<index>/<int:page>')
+@user_permission.require()
 def speech(name, index, page):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
@@ -55,6 +58,7 @@ def speech(name, index, page):
 
 
 @speech_page.route('<name>/<index>/wav/<int:page>')
+@user_permission.require()
 def wav(name, index, page):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
@@ -111,6 +115,7 @@ def wav(name, index, page):
 
 
 @speech_page.route('<name>/modify', methods=['POST'])
+@user_permission.require()
 def modify(name):
     coll = 'speech/' + name
     id = int(request.form['id'])
@@ -131,6 +136,7 @@ def modify(name):
 
 
 @speech_page.route('<name>/regions', methods=['POST'])
+@user_permission.require()
 def regions(name):
     coll = 'speech/' + name
     id = int(request.form['id'])
@@ -154,6 +160,7 @@ list_items_per_page = 10
 
 
 @speech_page.route('<name>/<index>/list')
+@user_permission.require()
 def list(name, index):
     coll = 'speech/' + name
     if coll in mongo.db.collection_names():
