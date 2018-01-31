@@ -18,9 +18,9 @@ if exists('passwords.db'):
             users.append((u, p, a))
         secret_key = db['secret']
 
-# users.append(('admin', hash('password'), True))
-# users.append(('user', hash('password'), False))
-# secret_key='secret_key'
+users.append(('admin', hash('password'), True))
+users.append(('user', hash('password'), False))
+secret_key = 'secret_key'
 
 with open('passwords.db', 'wb') as f:
     db = {'users': users, 'secret': secret_key}
