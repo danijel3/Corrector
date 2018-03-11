@@ -1,7 +1,7 @@
 var norm_to_update = false;
 
 function update_norm(corp_name, item_id) {
-    $('#save_info').html('<span class="glyphicon glyphicon-refresh blue" aria-hidden="true"></span> Zapisuję...');
+    $('#save_info').html('<span class="fa fa-refresh blue" aria-hidden="true"></span> Zapisuję...');
     if (norm_to_update)
         return;
     norm_to_update = true;
@@ -11,7 +11,7 @@ function update_norm(corp_name, item_id) {
 }
 
 function update_norm_call(corp_name, item_id) {
-    $('#save_info').html('<span class="glyphicon glyphicon-refresh blue" aria-hidden="true"></span> Zapisuję...');
+    $('#save_info').html('<span class="fa fa-refresh blue" aria-hidden="true"></span> Zapisuję...');
     norm_to_update = false;
     var value = $('#edit_text').val();
     $.post('/norm/' + corp_name + '/modify', {
@@ -19,9 +19,9 @@ function update_norm_call(corp_name, item_id) {
         value: value
     }).done(function () {
         $('body').toggleClass('modified', true);
-        $('#save_info').html('<span class="glyphicon glyphicon-ok green" aria-hidden="true"></span> Zapisałem!');
+        $('#save_info').html('<span class="fa fa-check green" aria-hidden="true"></span> Zapisałem!');
     }).fail(function () {
-        $('#save_info').html('<span class="glyphicon glyphicon-remove red" aria-hidden="true"></span> Bład zapisywania!');
+        $('#save_info').html('<span class="glyphicon fa-exclamation-circle red" aria-hidden="true"></span> Bład zapisywania!');
         norm_to_update = true;
     }).always(function () {
         if (norm_to_update)
@@ -88,8 +88,8 @@ function diff_norm() {
         edit_norm();
     });
 
-    var norm = $('.norm .edit').text();
-    var corr = $('.corr .edit').val();
+    var norm = $('#orig').text();
+    var corr = $('#edit_text').val();
 
     if (!norm || !corr) return;
 
@@ -108,17 +108,13 @@ function diff_norm() {
         }
     }
 
-    $('.norm .diff').html(norm);
-    $('.corr .diff').html(corr);
+    $('#orig_diff').html(norm);
+    $('#corr_diff').html(corr);
 
-
-    $('.norm_item .edit').each(function () {
-        $(this).toggleClass('hide', true);
-    });
-
-    $('.norm_item .diff').each(function () {
-        $(this).toggleClass('hide', false);
-    });
+    $('#orig').toggleClass('hide', true);
+    $('#edit_text').toggleClass('hide', true);
+    $('#orig_diff').toggleClass('hide', false);
+    $('#corr_diff').toggleClass('hide', false);
 }
 
 function edit_norm() {
@@ -128,11 +124,8 @@ function edit_norm() {
         diff_norm();
     });
 
-    $('.norm_item .edit').each(function () {
-        $(this).toggleClass('hide', false);
-    });
-
-    $('.norm_item .diff').each(function () {
-        $(this).toggleClass('hide', true);
-    });
+    $('#orig').toggleClass('hide', false);
+    $('#edit_text').toggleClass('hide', false);
+    $('#orig_diff').toggleClass('hide', true);
+    $('#corr_diff').toggleClass('hide', true);
 }

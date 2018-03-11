@@ -3,7 +3,7 @@
     <div class="jumbotron">
         <div class="container">
             <h1>Korpus "{{ name }}"</h1>
-            <p>Normalizacja <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            <p>Normalizacja <span class="fa fa-refresh" aria-hidden="true"></span>
             </p>
             <a href="/">Powrót na główną stronę</a>
         </div>
@@ -11,47 +11,41 @@
 
     <div id="normalization" class="container">
 
-        <p style="float:right">
-            <button id="diff_btn" class="btn">Diff</button>
-        </p>
-        <script type="text/javascript">
-            $('#diff_btn').click(diff_norm);
+        <div class="norm_item card">
+            <h2 class="card-header">
+                Oryginał
+                <button id="diff_btn" class="btn" style="float: right">Diff</button>
+            </h2>
+            <div class="card-body">{{ item.orig }}</div>
+        </div>
 
-            {% if item.corr %}
-                $('body').toggleClass('modified', true);
-            {% endif %}
-
-        </script>
-
-
-        <div class="norm_item">
-            <h2>Oryginał</h2>
-            <div>{{ item.orig }}</div>
-
-            <h2>
+        <div class="card">
+            <h2 class="card-header">
                 <a href="#norm_c{{ item.id }}" data-toggle="collapse" aria-expanded="false"
                    aria-controls="norm_c{{ item.id }}">
                     Normalizator
                 </a>
             </h2>
-            <div class="norm collapse" id="norm_c{{ item.id }}">
-                <span class="edit">{{ item.norm }}</span>
-                <span class="diff hide">test</span>
+            <div class="norm collapse card-body" id="norm_c{{ item.id }}">
+                <span id="orig">{{ item.norm }}</span>
+                <span id="orig_diff" class="hide">test</span>
             </div>
+        </div>
+        <div class="card">
 
-            <h2>Korekta</h2>
+            <h2 class="card-header">Korekta</h2>
             {% if item.corr %}
                 {% set input_value =  item.corr %}
             {% else %}
                 {% set input_value =  item.norm %}
             {% endif %}
 
-            <div class="corr">
+            <div class="corr card-body">
                 <textarea id="edit_text" class="edit" spellcheck="true" type="text"
                           onkeyup="update_norm('{{ name }}','{{ item.id }}');">{{ input_value }}</textarea>
-                <span class="diff hide">test</span>
+                <span id="corr_diff" class="hide">test</span>
             </div>
-            <div class="edit">
+            <div class="edit card-body">
                 <button class="btn btn-success"
                         onclick="update_norm('{{ name }}','{{ item.id }}');">
                     Zapisz
@@ -63,31 +57,38 @@
                     serwerze?
                 </button>
                 <p id="save_info" style="float:right">
-                    <span class="glyphicon glyphicon-ok green" aria-hidden="true"></span> Zapisano
+                    <span class="fa fa-check green" aria-hidden="true"></span> Zapisano
                 </p>
             </div>
         </div>
 
-        <div class="container" style="text-align: center">
-            <p>Strona:</p>
-            {% if page==1 %}
-                <span>&lt;&lt; Poprzednia</span>
-                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                <a class="btn" href="{{ name }}/{{ page + 1 }}">Następna &gt;&gt;</a>
-            {% elif page==page_num %}
-                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
-                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                <span>Następna &gt;&gt;</span>
-            {% else %}
-                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
-                <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
-            {% endif %}
-            <p><a href="/norm/{{ name }}/list">Lista wszystkich stron</a></p>
+        <div class="card" style="text-align: center">
+            <p class="card-header">Strona</p>
+            <div class="card-body">
+                {% if page==1 %}
+                    <span>&lt;&lt; Poprzednia</span>
+                    <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                    <a class="btn" href="{{ name }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+                {% elif page==page_num %}
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                    <span>Następna &gt;&gt;</span>
+                {% else %}
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
+                    <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+                {% endif %}
+                <p><a href="/norm/{{ name }}/list">Lista wszystkich stron</a></p>
+            </div>
         </div>
 
         <script type="text/javascript">
             autosize($('textarea'));
+            $('#diff_btn').click(diff_norm);
+
+            {% if item.corr %}
+                $('body').toggleClass('modified', true);
+            {% endif %}
         </script>
 
     </div>
@@ -96,7 +97,6 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Co zapisano na serwerze?</h4>
                 </div>
                 <div class="modal-body" id="savedContent">
@@ -105,7 +105,6 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
                 </div>
             </div>
-
         </div>
     </div>
 

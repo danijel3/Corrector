@@ -3,7 +3,7 @@
     <div class="jumbotron">
         <div class="container">
             <h1>Korpus "{{ name }}"</h1>
-            <p>Mowa <span class="glyphicon glyphicon-volume-up" aria-hidden="true"></span>
+            <p>Mowa <span class="fa fa-comments" aria-hidden="true"></span>
             </p>
             {% if index != 'default' %}
                 <p>Indeks: {{ index }}</p>
@@ -26,15 +26,33 @@
             <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
         {% endif %}
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/wavesurfer.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.2.3/plugin/wavesurfer.regions.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.regions.min.js"></script>
 
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <input id="slider" type="range" min="100" max="300" value="100" style="width: 100%">
-                <div id="waveform"></div>
+        <div class="card">
+            <div class="card-body">
 
-                <script src="{{ url_for('static', filename='speech.js') }}?ver=4"></script>
+                <div class="container">
+                    <button class="btn btn-warning" onclick="zoom(0)">
+                        <i class="fa fa-search"></i>
+                        Zoom All
+                    </button>
+                    <button class="btn btn-warning" onclick="zoom(1)">
+                        <i class="fa fa-search-plus"></i>
+                        Zoom In
+                    </button>
+                    <button class="btn btn-warning" onclick="zoom(-1)">
+                        <i class="fa fa-search-minus"></i>
+                        Zoom Out
+                    </button>
+                    (<span id="zoom_level">1</span>x)
+                </div>
+
+                <div class="container" style="margin: 1rem 0 1rem 0">
+                    <div id="waveform"></div>
+                </div>
+
+                <script src="{{ url_for('static', filename='speech.js') }}?ver=5"></script>
                 <script type="text/javascript">
                     wavesurfer.load('/speech/{{ name }}/{{ index }}/wav/{{ page }}');
                     wavesurfer.on('ready', function () {
@@ -45,50 +63,53 @@
                     });
                 </script>
 
-                <button class="btn btn-primary" onclick="wavesurfer.playPause()">
-                    <span class="glyphicon glyphicon-play"></span>
-                    Odtwórz/Zatrzymaj
-                </button>
-
-                <a href="/speech/{{ name }}/wav/{{ page }}">WAV</a>
-
-                <span style="float: right;">
-                    <button class=" btn" onclick="add_region(1,2)">
-                    <span class="glyphicon glyphicon-plus"></span>
-                    Dodaj region do pominięcia
+                <div class="container">
+                    <button class="btn btn-primary" onclick="wavesurfer.playPause()">
+                        <span class="fa fa-play"></span>
+                        Odtwórz/Zatrzymaj
                     </button>
 
-                    <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
+                    <a href="/speech/{{ name }}/{{ index }}/wav/{{ page }}">WAV</a>
 
-                    <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ item.id }}')">
-                        <span class="glyphicon glyphicon-check"></span>
-                        Zapisz
-                    </button>
-                </span>
+                    <span style="float: right;">
+                        <button class=" btn" onclick="add_region(1,2)">
+                        <span class="fa fa-plus"></span>
+                        Dodaj region do pominięcia
+                        </button>
+
+                        <span style="font-size: 8pt">(usuwanie podwójnym klikiem)</span>
+                        <button class="btn btn-success" onclick="save_regions('{{ name }}','{{ item.id }}')">
+                            <span class="fa fa-check"></span>
+                            Zapisz
+                        </button>
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="card">
+
+            <h3 class="card-header">
                 Oryginał
-            </div>
-            <div class="panel-body">
-                <p id="orig">{{ item.text }}</p>
-                <p id="orig_diff" class="diff hide">test</p>
+            </h3>
+
+            <div class="card-body">
+                <p class="card-text" id="orig">{{ item.text }}</p>
+                <p id="orig_diff" class="diff hide card-text">test</p>
             </div>
         </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
+        <div class="card">
+            <h3 class="card-header">
                 Korekta
                 <span style="float:right; position: relative; top:-7px">
                     <button id="save_btn" class="btn btn-success" onclick="save_speech('{{ name }}','{{ item.id }}')">
-                        <span class="glyphicon glyphicon-check"></span>
+                        <span class="fa fa-check"></span>
                         Zapisz
                     </button>
                     <button id="diff_btn" class="btn btn-info">Diff</button>
                     <button id="save_btn" class="btn btn-danger" onclick="undo_speech('{{ name }}','{{ item.id }}')">
-                        <span class="glyphicon glyphicon-remove"></span>
+                        <span class="fa fa-remove"></span>
                         Usuń zmiany
                     </button>
                 </span>
@@ -98,7 +119,7 @@
                         diff_norm();
                     });
                 </script>
-            </div>
+            </h3>
 
             {% if item.corr %}
                 {% set input_value =  item.corr %}
@@ -108,29 +129,34 @@
                 {% set class_value = '' %}
             {% endif %}
 
-            <div class="panel-body">
+            <div class="card-body">
                 <textarea id="corr" oninput="update_speech()"
                           class="{{ class_value }}">{{ input_value }}</textarea>
                 <p id="corr_diff" class="diff hide">test</p>
             </div>
         </div>
 
-        <div class="container" style="text-align: center">
-            <p>Strona:</p>
-            {% if page==0 %}
-                <span>&lt;&lt; Poprzednia</span>
-                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Następna &gt;&gt;</a>
-            {% elif page==page_num-1 %}
-                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
-                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                <span>Następna &gt;&gt;</span>
-            {% else %}
-                <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
-                <input type="number" value="{{ page }}" onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
-            {% endif %}
-            <p><a href="/speech/{{ name }}/{{ index }}/list">Lista wszystkich stron</a></p>
+        <div class="card" style="text-align: center">
+            <div class="card-header">Strona</div>
+            <div class="card-body">
+                {% if page==0 %}
+                    <span>&lt;&lt; Poprzednia</span>
+                    <input type="number" value="{{ page }}"
+                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                    <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+                {% elif page==page_num-1 %}
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <input type="number" value="{{ page }}"
+                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                    <span>Następna &gt;&gt;</span>
+                {% else %}
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <input type="number" value="{{ page }}"
+                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                    <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+                {% endif %}
+                <p><a href="/speech/{{ name }}/{{ index }}/list">Lista wszystkich stron</a></p>
+            </div>
         </div>
     </div>
 

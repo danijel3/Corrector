@@ -3,7 +3,7 @@
     <div class="jumbotron" style="background-color: darkblue; color: white">
         <div class="container">
             <h1 style="font-family: 'Allura', cursive; font-size: 72pt;">
-                <span class="glyphicon glyphicon-erase" aria-hidden="true"></span>
+                <span class="fa fa-eraser" aria-hidden="true"></span>
                 Korektor
             </h1>
             <p>Strona do korekcji korpusów...</p>
@@ -13,7 +13,7 @@
     {% if is_admin %}
         <div class="container">
             <a class="btn btn-info" href="/import">
-                <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Import
+                <span class="fa fa-upload" aria-hidden="true"></span> Import
             </a>
         </div>
     {% endif %}
@@ -21,13 +21,16 @@
 
     <div class="container">
         <h2>Wybierz korpus</h2>
-        <div class="container col-md-6">
-            <table class="table">
+        <div class="container">
+            <table class="table table-striped">
+                <thead class="thead-inverse">
                 <tr>
-                    <th>Rodzaj</th>
+                    <th style="width: 10%">Rodzaj</th>
                     <th>Nazwa</th>
-                    <th>&nbsp;</th>
+                    <th style="width: 20%;">&nbsp;&nbsp;</th>
                 </tr>
+                </thead>
+                <tbody>
                 {% for c in corpora %}
                     <tr>
                         <td>{{ c.kind }}</td>
@@ -38,16 +41,19 @@
                             <td>
                                 <a class="btn btn-info" href="/export?corp={{ c.coll }}&type={{ c.kind }}"
                                    onclick="return confirm('Na pewno?')">
-                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Export
+                                    <span class="fa fa-download" aria-hidden="true"></span> Export
                                 </a>
                                 <a class="btn btn-danger" href="/remove?corp={{ c.coll }}"
                                    onclick="return confirm('Na pewno?')">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
+                                    <span class="fa fa-remove" aria-hidden="true"></span> Delete
                                 </a>
                             </td>
+                        {% else %}
+                            <td> &nbsp;</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

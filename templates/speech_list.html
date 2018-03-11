@@ -7,22 +7,16 @@
         </div>
     </div>
 
-    <div class="container">
-        <ul class="pagination">
-            {% for item in items %}
-                <li>
-                    {% if item.mod %}
-                        <a style="background-color: rgba(255, 200, 100, 0.3)" class="page-link"
-                           href="/speech/{{ name }}/{{ index }}/{{ item.id }}">
-                            {{ item.utt }}
-                        </a>
-                    {% else %}
-                        <a href="/speech/{{ name }}/{{ index }}/{{ item.id }}" class="page-link">
-                            {{ item.utt }}
-                        </a>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="container page-list">
+        {% for item in items %}
+            {% if item.mod %}
+                {% set modified='page-modified' %}
+            {% endif %}
+
+            <a class="btn btn-sm btn-outline-primary {{ modified }}"
+               href="/speech/{{ name }}/{{ index }}/{{ item.id }}" class="page-link">
+                {{ item.utt }}
+            </a>
+        {% endfor %}
     </div>
 {% endblock %}

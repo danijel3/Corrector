@@ -44,3 +44,25 @@ iframe {
     display: table-cell;
     vertical-align: top;
 }
+
+#waveform {
+    background-color: #eee;
+}
+
+.page-modified {
+    background-color: rgba(255, 200, 100, 0.3)
+}
+
+.page-list .btn {
+    margin-bottom: 0.25rem;
+}
+
+.card {
+    margin-top: 2em;
+}
+
+d {
+    color: red;
+    font-weight: bold;
+    text-decoration: underline;
+}

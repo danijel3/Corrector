@@ -3,7 +3,7 @@
     <div class="jumbotron">
         <div class="container">
             <h1>Korpus "{{ name }}"</h1>
-            <p>Leksykon <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+            <p>Leksykon <span class="fa fa-book" aria-hidden="true"></span>
             </p>
             <a href="/">Powrót na główną stronę</a>
         </div>
@@ -23,7 +23,7 @@
                         {% if loop.index0 == 0 %}
                             <td>{{ item.orto }}</td>
                         {% else %}
-                            <td><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></td>
+                            <td><span class="fa fa-arrow-up" aria-hidden="true"></span></td>
                         {% endif %}
 
                         <td><input type="text" value="{{ ph|join(' ') }}"
@@ -32,13 +32,13 @@
                         {% if loop.index0 == 0 %}
                             <td>
                                 <button class="btn" onclick="add_lex('{{ name }}','{{ item.id }}');">
-                                    <span class="glyphicon glyphicon-plus-sign green" aria-hidden="true"></span>
+                                    <span class="fa fa-plus-circle green" aria-hidden="true"></span>
                                 </button>
                             </td>
                         {% else %}
                             <td>
                                 <button class="btn" onclick="rem_lex('{{ name }}','{{ item.id }}',{{ loop.index0 }});">
-                                    <span class="glyphicon glyphicon-minus-sign red" aria-hidden="true"></span>
+                                    <span class="fa fa-minus-circle red" aria-hidden="true"></span>
                                 </button>
                             </td>
                         {% endif %}
@@ -48,7 +48,7 @@
 
         </table>
 
-        <div style="text-align: center">
+        <nav style="text-align: center">
             <ul class="pagination">
                 {% for p in range(pagination_start,pagination_end) %}
                     {% set text = p|string %}
@@ -58,13 +58,17 @@
                         {% set text = text + '...' %}
                     {% endif %}
                     {% if p - 1 == page %}
-                        <li class="active"><a href="/lex/{{ name }}/{{ p - 1 }}">{{ p }}</a></li>
+                        <li class="page-item active">
+                            <a class="page-link" href="/lex/{{ name }}/{{ p - 1 }}">{{ p }}</a>
+                        </li>
                     {% else %}
-                        <li><a href="/lex/{{ name }}/{{ p - 1 }}">{{ text }}</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="/lex/{{ name }}/{{ p - 1 }}">{{ text }}</a>
+                        </li>
                     {% endif %}
                 {% endfor %}
             </ul>
-        </div>
+        </nav>
     </div>
 
 {% endblock %}

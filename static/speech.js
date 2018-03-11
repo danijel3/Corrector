@@ -3,17 +3,37 @@ var wavesurfer = WaveSurfer.create({
     waveColor: 'green',
     progressColor: 'blue',
     normalize: true,
-    height: 256
+    height: 256,
+    plugins: [
+        WaveSurfer.regions.create({
+            dragSelection: {
+                slop: 5
+            }
+        })
+    ]
 });
-
-var slider = document.querySelector('#slider');
-slider.oninput = function () {
-    var zoomLevel = Number(slider.value);
-    wavesurfer.zoom(zoomLevel);
-};
 
 var regions = [];
 var region_modified = false;
+
+var zoom_levels = Array(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5);
+var curr_zoom = 0;
+
+function zoom(dir) {
+    if (dir < 0) {
+        curr_zoom--;
+        if (curr_zoom < 0)
+            curr_zoom = 0;
+    } else if (dir > 0) {
+        curr_zoom++;
+        if (curr_zoom >= zoom_levels.length)
+            curr_zoom = zoom_levels.length - 1;
+    } else {
+        curr_zoom = 0;
+    }
+    $('#zoom_level').html(zoom_levels[curr_zoom]);
+    wavesurfer.zoom(100 * zoom_levels[curr_zoom]);
+}
 
 function add_region(start, end) {
 

@@ -9,21 +9,16 @@
         </div>
     </div>
 
-    <div class="container">
-        <ul class="pagination">
-            {% for page in pages %}
-                <li class="page-item">
-                    {% if page.modified %}
-                        <a style="background-color: rgba(255, 200, 100, 0.3)"
-                    {% else %}
-                        <a
-                    {% endif %}
-                    class="page-link" href="/norm/{{ name }}/{{ page.id + 1 }}">
-                        {{ page.id + 1 }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="container page-list">
+        {% for page in pages %}
+            {% if page.modified %}
+                {% set modified='page-modified' %}
+            {% endif %}
+
+            <a class="btn btn-sm btn-outline-primary {{ modified }}" href="/norm/{{ name }}/{{ page.id + 1 }}">
+                {{ page.id + 1 }}
+            </a>
+        {% endfor %}
     </div>
 
 
