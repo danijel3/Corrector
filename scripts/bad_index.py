@@ -34,5 +34,5 @@ for i, utt in enumerate(edits_index):
 
 with open(index_path.absolute(), 'w') as f:
     f.write('wer edits\n')
-    for utt, ind in index.items():
+    for utt, ind in list(index.items()):
         f.write(f'{utt} {ind[0]} {ind[1]}\n')

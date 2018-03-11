@@ -1,5 +1,5 @@
 import pickle
-from os.path import exists
+from pathlib import Path
 
 import bcrypt
 
@@ -11,7 +11,7 @@ def hash(p):
     return bcrypt.hashpw(p.encode('utf-8'), bcrypt.gensalt())
 
 
-if exists('passwords.db'):
+if Path('passwords.db').exists():
     with open('passwords.db', 'rb') as f:
         db = pickle.load(f)
         for u, p, a in db['users']:
@@ -28,5 +28,5 @@ with open('passwords.db', 'wb') as f:
 
 print('Saved users:')
 for u, p, a in users:
-    print('user: {}, pw: {}, admin: {}'.format(u, p, a))
-print('Secret: {}'.format(secret_key))
+    print(f'user: {u}, pw: {p}, admin: {a}')
+print(f'Secret: {secret_key}')

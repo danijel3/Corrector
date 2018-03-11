@@ -1,25 +1,23 @@
-import codecs
-import os
 import re
 import shutil
-import urllib
+from pathlib import Path
 
 from db import mongo
 
 re_sp = re.compile('\s+')
 
 
-def list_import(path):
+def list_import(path: Path):
     corpora = []
-    for file in os.listdir(path):
-        if os.path.isdir(os.path.join(path, file)):
-            corpora.append(file)
+    for file in path.iterdir():
+        if file.is_dir():
+            corpora.append(file.name)
 
     return corpora
 
 
-def corpus_import(path, type):
-    name = urllib.parse.quote(os.path.basename(path))
+def corpus_import(path: Path, type: str):
+    name = path.name
     collname = type + '/' + name
     if collname in mongo.db.collection_names():
         mongo.db[collname].drop()
@@ -33,11 +31,11 @@ def corpus_import(path, type):
         db = []
 
         corr = None
-        if os.path.exists(os.path.join(path, 'corr.txt')):
-            corr = codecs.open(os.path.join(path, 'corr.txt'), encoding='utf-8')
+        if (path / 'corr.txt').exists():
+            corr = open(path / 'corr.txt')
 
-        with codecs.open(os.path.join(path, 'input.txt'), encoding='utf-8') as orig:
-            with codecs.open(os.path.join(path, 'output.txt'), encoding='utf-8') as norm:
+        with open(path / 'input.txt') as orig:
+            with open(path / 'output.txt')as norm:
                 id = 0
                 for ol in orig:
                     nl = norm.readline().strip()
@@ -54,22 +52,22 @@ def corpus_import(path, type):
         coll.insert_many(db)
 
     elif type == 'lex':
-        with codecs.open(os.path.join(path, 'lexicon.txt'), encoding='utf-8') as f:
+        with open(path / 'lexicon.txt')as f:
             id = 0
             db = {}
             for l in f:
                 tok = re_sp.split(l.strip())
                 orto = tok[0]
                 phon = tok[1:]
-                if not orto in db:
+                if orto not in db:
                     db[orto] = {'id': id, 'orto': orto, 'phon': [phon]}
                     id += 1
                 else:
                     db[orto]['phon'].append(phon)
-            db = sorted(db.values(), key=lambda x: x['id'])
+            db = sorted(list(db.values()), key=lambda x: x['id'])
             coll.insert_many(db)
     elif type == 'speech':
-        with codecs.open(os.path.join(path, 'wav.scp'), encoding='utf-8') as f:
+        with open(path / 'wav.scp') as f:
             wav = {}
             for l in f:
                 s = l.find(' ')
@@ -79,9 +77,9 @@ def corpus_import(path, type):
                     wav[id] = p
 
         edits = None
-        if os.path.exists(os.path.join(path, 'edits.txt')):
+        if (path / 'edits.txt').exists():
             edits = {}
-            with codecs.open(os.path.join(path, 'edits.txt'), encoding='utf-8') as f:
+            with open(path / 'edits.txt')as f:
                 for l in f:
                     s = l.find(' ')
                     if s > 0:
@@ -90,17 +88,17 @@ def corpus_import(path, type):
                         edits[id] = ed
 
         segs = None
-        if os.path.exists(os.path.join(path, 'segments')):
+        if (path / 'segments').exists():
             segs = {}
-            with codecs.open(os.path.join(path, 'segments'), encoding='utf-8') as f:
+            with open(path / 'segments') as f:
                 for l in f:
                     t = l.split(' ')
                     segs[t[0]] = (t[1], float(t[2]), float(t[3]))
 
         index = {}
         indices = []
-        if os.path.exists(os.path.join(path, 'index')):
-            with codecs.open(os.path.join(path, 'index'), encoding='utf-8') as f:
+        if (path / 'index').exists():
+            with open(path / 'index') as f:
                 indices = f.readline().strip().split(' ')
                 for idx in indices:
                     indices_num[idx] = 0
@@ -116,7 +114,7 @@ def corpus_import(path, type):
                             indices_num[idx] += 1
                     index[i[0]] = ind
 
-        with codecs.open(os.path.join(path, 'text'), encoding='utf-8') as f:
+        with open(path / 'text') as f:
             text = []
             id = 0
             for l in f:
@@ -126,7 +124,7 @@ def corpus_import(path, type):
                     t = l[s + 1:].strip()
                     eds = 0
                     wer = 0
-                    if (edits) and utt_id in edits:
+                    if edits and utt_id in edits:
                         eds = edits[utt_id]
                         wer = float(eds) / len(t.split(' '))
                     if segs:
@@ -149,45 +147,45 @@ def corpus_import(path, type):
 
         coll.insert_many(text)
         for idx in indices:
-            coll.create_index('index.{}'.format(idx), sparse=True)
+            coll.create_index(f'index.{idx}', sparse=True)
 
     corp = {'kind': type, 'name': name, 'coll': collname, 'num': id, 'index_num': indices_num}
     mongo.db.corpora.insert_one(corp)
 
 
-def corpus_export(path, name, type):
-    if not name in mongo.db.collection_names():
+def corpus_export(path: Path, name: str, type: str):
+    if name not in mongo.db.collection_names():
         return
 
     coll = mongo.db[name]
 
-    if os.path.exists(path):
-        shutil.rmtree(path)
+    if path.exists():
+        shutil.rmtree(str(path))
 
-    os.makedirs(path)
+    path.mkdir(parents=True)
 
     if type == 'norm':
-        with codecs.open(os.path.join(path, 'corr.txt'), mode='w', encoding='utf-8') as f:
+        with open(path / 'corr.txt', 'w') as f:
             for item in coll.find():
                 f.write(item['corr'].replace('\n', ' ') + '\n')
     elif type == 'lex':
-        with codecs.open(os.path.join(path, 'lexicon.txt'), mode='w', encoding='utf-8') as f:
+        with open(path / 'lexicon.txt', 'w') as f:
             for item in coll.find():
                 ort = item['orto']
                 for ph in item['phon']:
-                    f.write(u'{} {}\n'.format(ort, ' '.join(ph)))
+                    f.write(f'{ort} {" ".join(ph)}\n')
 
     elif type == 'speech':
-        with codecs.open(os.path.join(path, 'text'), mode='w', encoding='utf-8') as f:
-            with codecs.open(os.path.join(path, 'erase_segments'), mode='w', encoding='utf-8') as fseg:
+        with open(path / 'text', 'w') as f:
+            with open(path / 'erase_segments', 'w') as fseg:
                 for item in coll.find():
                     if 'corr' in item and item['corr']:
-                        f.write(u'{} {}\n'.format(item['utt'], item['corr']))
+                        f.write(f'{item["utt"]} {item["corr"]}\n')
                     else:
-                        f.write(u'{} {}\n'.format(item['utt'], item['text']))
+                        f.write(f'{item["utt"]} {item["text"]}\n')
                     if 'regions' in item:
                         for reg in item['regions']:
-                            fseg.write(u'{} {} {}\n'.format(item['utt'], reg[0], reg[1] - reg[0]))
+                            fseg.write(f'{item["utt"]} {reg[0]} {reg[1] - reg[0]}\n')
 
 
 def corpus_remove(name):

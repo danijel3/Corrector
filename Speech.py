@@ -23,8 +23,7 @@ def index(name):
     indices = ['default']
 
     if 'index_num' in corp_info:
-        for index in corp_info['index_num'].keys():
-            indices.append(index)
+        indices.extend([*corp_info['index_num']])
 
     return render_template('speech_index.html', name=name, indices=indices)
 
@@ -46,7 +45,7 @@ def speech(name, index, page):
         page_num = corp_info['num']
     else:
         if 'index_num' in corp_info and index in corp_info['index_num']:
-            item = corp.find_one({'index.{}'.format(index): page})
+            item = corp.find_one({f'index.{index}': page})
             page_num = corp_info['index_num'][index]
         else:
             return abort(404)
@@ -72,7 +71,7 @@ def wav(name, index, page):
         item = corp.find_one({'id': page})
     else:
         if 'index_num' in corp_info and index in corp_info['index_num']:
-            item = corp.find_one({'index.{}'.format(index): page})
+            item = corp.find_one({f'index.{index}': page})
         else:
             return abort(404)
 
@@ -124,8 +123,6 @@ def modify(name):
     else:
         return abort(404)
 
-    text = corp.find_one({'id': id})['text']
-
     if 'undo' in request.form:
         corp.update_one({'id': id}, {'$set': {'corr': ''}})
     else:
@@ -171,14 +168,13 @@ def list(name, index):
     if index == 'default':
         items = corp.find()
     else:
-        idx = 'index.{}'.format(index)
+        idx = f'index.{index}'
         items = corp.find({}, sort=[(idx, ASCENDING)], hint=[(idx, ASCENDING)])
 
     itemlist = []
 
     for item in items:
-        i = {}
-        i['utt'] = item['utt']
+        i = {'utt': item['utt']}
 
         if index == 'default':
             i['id'] = item['id']

@@ -1,4 +1,3 @@
-import os.path
 import pickle
 
 from flask import Flask, render_template, request, redirect, url_for, session, g
@@ -17,7 +16,7 @@ from db import mongo
 
 app = Flask(__name__)
 
-with open(os.path.join(os.path.dirname(__file__), 'passwords.db'), 'rb') as f:
+with open(Path(__file__).absolute().parent / 'passwords.db', 'rb') as f:
     db = pickle.load(f)
     for user, pw, admin in db['users']:
         users[user] = User(user, pw, is_admin=admin)
@@ -32,7 +31,7 @@ principals = Principal(app)
 login_manager.init_app(app)
 mongo.init_app(app)
 
-root = os.path.dirname(__file__)
+root = Path(__file__).absolute().parent
 
 
 @app.route('/')
@@ -52,10 +51,10 @@ def import_list():
     corp_type = request.args.get('type')
 
     if corpus and corp_type:
-        corpus_import(os.path.join(root, 'import', corpus), corp_type)
+        corpus_import(root / 'import' / corpus, corp_type)
         return redirect('/')
 
-    corpora = list_import(os.path.join(root, 'import'))
+    corpora = list_import(root / 'import')
     return render_template('import.html', corpora=corpora)
 
 
@@ -75,9 +74,7 @@ def export_corpus():
     corpus = request.args['corp']
     corp_type = request.args['type']
 
-    path = os.path.join(root, 'export', corpus)
-
-    corpus_export(path, corpus, corp_type)
+    corpus_export(root / 'export' / corpus, corpus, corp_type)
 
     return redirect('/')
 

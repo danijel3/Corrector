@@ -1,0 +1,10 @@
+WTForms
+Flask_PyMongo
+Flask_Principal
+pymongo
+Flask
+Flask_Login
+Flask_WTF
+numpy
+pandas
+bcrypt
