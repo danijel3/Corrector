@@ -1,22 +1,28 @@
-var wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: 'green',
-    progressColor: 'blue',
-    normalize: true,
-    height: 256,
-    plugins: [
-        WaveSurfer.regions.create({
-            dragSelection: {
+var wavesurfer;
+
+function create_wavesurfer(file) {
+    wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: 'green',
+        progressColor: 'blue',
+        normalize: true,
+        height: 256,
+        loopSelection: false,
+        plugins: [
+            WaveSurfer.regions.create({
+                dragSelection: false,
                 slop: 5
-            }
-        })
-    ]
-});
+            }),
+            WaveSurfer.minimap.create()
+        ]
+    });
+    wavesurfer.load(file);
+}
 
 var regions = [];
 var region_modified = false;
 
-var zoom_levels = Array(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5);
+var zoom_levels = Array(0, 0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5);
 var curr_zoom = 0;
 
 function zoom(dir) {
@@ -35,6 +41,11 @@ function zoom(dir) {
     wavesurfer.zoom(100 * zoom_levels[curr_zoom]);
 }
 
+function add_region_curr() {
+    var c = wavesurfer.getCurrentTime();
+    add_region(c, c + 1);
+}
+
 function add_region(start, end) {
 
     var reg = wavesurfer.addRegion({
@@ -42,11 +53,6 @@ function add_region(start, end) {
         end: end, // time in seconds
         color: 'rgba(255, 0, 0, 0.5)'
     });
-
-    reg.element.children[0].style.width = '4px';
-    //reg.element.children[0].style.maxWidth='5px';
-    reg.element.children[1].style.width = '4px';
-    //reg.element.children[1].style.maxWidth='5px';
 
     reg.on('dblclick', function () {
         reg.remove();

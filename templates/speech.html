@@ -28,6 +28,8 @@
 
         <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.regions.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.minimap.min.js"></script>
+
 
         <div class="card">
             <div class="card-body">
@@ -45,21 +47,21 @@
                         <i class="fa fa-search-minus"></i>
                         Zoom Out
                     </button>
-                    (<span id="zoom_level">1</span>x)
+                    (<span id="zoom_level">0</span>x)
                 </div>
 
                 <div class="container" style="margin: 1rem 0 1rem 0">
                     <div id="waveform"></div>
                 </div>
 
-                <script src="{{ url_for('static', filename='speech.js') }}?ver=5"></script>
+                <script src="{{ url_for('static', filename='speech.js') }}?ver=6"></script>
                 <script type="text/javascript">
-                    wavesurfer.load('/speech/{{ name }}/{{ index }}/wav/{{ page }}');
+                    create_wavesurfer('/speech/{{ name }}/{{ index }}/wav/{{ page }}');
                     wavesurfer.on('ready', function () {
-                        {% for reg in item.regions %}
-                            add_region({{ reg[0] }}, {{ reg[1] }});
+                        {% for reg in item.regions %}add_region({{ reg[0] }}, {{ reg[1] }});
                         {% endfor %}
                         region_modified = false;
+                        $('minimap').css({'background-color': '#abc'})
                     });
                 </script>
 
@@ -72,7 +74,7 @@
                     <a href="/speech/{{ name }}/{{ index }}/wav/{{ page }}">WAV</a>
 
                     <span style="float: right;">
-                        <button class=" btn" onclick="add_region(1,2)">
+                        <button class=" btn" onclick="add_region_curr()">
                         <span class="fa fa-plus"></span>
                         Dodaj region do pominięcia
                         </button>
