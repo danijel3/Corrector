@@ -17,6 +17,32 @@ function create_wavesurfer(file) {
         ]
     });
     wavesurfer.load(file);
+    document.onkeypress = function (e) {
+        switch (e.which) {
+            case 48:
+                wavesurfer.playPause();
+                break;
+            case 43:
+                zoom(1);
+                break;
+            case 45:
+                zoom(-1);
+                break;
+            case 47:
+                zoom(0);
+                break;
+            case 52:
+                wavesurfer.skipBackward(1);
+                break;
+            case 54:
+                wavesurfer.skipForward(1);
+                break;
+            case 49:
+                wavesurfer.seekTo(0);
+                break;
+        }
+
+    }
 }
 
 var regions = [];
