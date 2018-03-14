@@ -20,24 +20,31 @@ function create_wavesurfer(file) {
     document.onkeypress = function (e) {
         switch (e.which) {
             case 48:
+                e.preventDefault();
                 wavesurfer.playPause();
                 break;
             case 43:
+                e.preventDefault();
                 zoom(1);
                 break;
             case 45:
+                e.preventDefault();
                 zoom(-1);
                 break;
             case 47:
+                e.preventDefault();
                 zoom(0);
                 break;
             case 52:
+                e.preventDefault();
                 wavesurfer.skipBackward(1);
                 break;
             case 54:
+                e.preventDefault();
                 wavesurfer.skipForward(1);
                 break;
             case 49:
+                e.preventDefault();
                 wavesurfer.seekTo(0);
                 break;
         }
