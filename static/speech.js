@@ -17,33 +17,33 @@ function create_wavesurfer(file) {
         ]
     });
     wavesurfer.load(file);
-    document.onkeypress = function (e) {
+    document.onkeydown = function (e) {
         switch (e.which) {
-            case 48:
+            case 96:
                 e.preventDefault();
                 wavesurfer.playPause();
                 break;
-            case 43:
+            case 107:
                 e.preventDefault();
                 zoom(1);
                 break;
-            case 45:
+            case 109:
                 e.preventDefault();
                 zoom(-1);
                 break;
-            case 47:
+            case 111:
                 e.preventDefault();
                 zoom(0);
                 break;
-            case 52:
+            case 100:
                 e.preventDefault();
                 wavesurfer.skipBackward(1);
                 break;
-            case 54:
+            case 102:
                 e.preventDefault();
                 wavesurfer.skipForward(1);
                 break;
-            case 49:
+            case 97:
                 e.preventDefault();
                 wavesurfer.seekTo(0);
                 break;
