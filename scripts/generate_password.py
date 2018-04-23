@@ -22,8 +22,6 @@ if Path('passwords.db').exists():
 #users.append(('user', hash('password'), False))
 #secret_key = 'secret_key'
 
-users.append(('mklec', hash('digasystem'), False))
-
 with open('passwords.db', 'wb') as f:
     db = {'users': users, 'secret': secret_key}
     pickle.dump(db, f)

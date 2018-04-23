@@ -97,12 +97,14 @@
         </div>
 
         <div class="card">
-
             <h3 class="card-header">
-                Oryginał
+                <a href="#orig-card" data-toggle="collapse" aria-expanded="false"
+                   aria-controls="orig-card">
+                    Oryginał
+                </a>
             </h3>
 
-            <div class="card-body">
+            <div class="collapse card-body" id="orig-card">
                 <p class="card-text" id="orig">{{ item.text }}</p>
                 <p id="orig_diff" class="diff hide card-text">test</p>
             </div>
