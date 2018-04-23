@@ -1,3 +1,4 @@
+import codecs
 import re
 import shutil
 from pathlib import Path
@@ -114,7 +115,7 @@ def corpus_import(path: Path, type: str):
                             indices_num[idx] += 1
                     index[i[0]] = ind
 
-        with open(path / 'text') as f:
+        with codecs.open(path / 'text', encoding='utf-8') as f:
             text = []
             id = 0
             for l in f:
@@ -165,7 +166,7 @@ def corpus_export(path: Path, name: str, type: str):
     path.mkdir(parents=True)
 
     if type == 'norm':
-        with open(path / 'corr.txt', 'w') as f:
+        with codecs.open(path / 'corr.txt', mode='w',encoding='utf-8') as f:
             for item in coll.find():
                 f.write(item['corr'].replace('\n', ' ') + '\n')
     elif type == 'lex':
@@ -176,13 +177,15 @@ def corpus_export(path: Path, name: str, type: str):
                     f.write(f'{ort} {" ".join(ph)}\n')
 
     elif type == 'speech':
-        with open(path / 'text', 'w') as f:
+        with codecs.open(path / 'text', mode='w', encoding='utf-8') as f:
             with open(path / 'erase_segments', 'w') as fseg:
                 for item in coll.find():
                     if 'corr' in item and item['corr']:
-                        f.write(f'{item["utt"]} {item["corr"]}\n')
+                        text=item['corr']
                     else:
-                        f.write(f'{item["utt"]} {item["text"]}\n')
+                        text=item['text']
+                    text=text.replace('\n',' ')
+                    f.write(f'{item["utt"]} {text}\n')
                     if 'regions' in item:
                         for reg in item['regions']:
                             fseg.write(f'{item["utt"]} {reg[0]} {reg[1] - reg[0]}\n')
