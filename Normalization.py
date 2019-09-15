@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, abort, request
 
-from auth import user_permission
+from auth import edit_permission
 from db import mongo
 
 norm_page = Blueprint('norm_page', __name__, template_folder='templates')
@@ -8,7 +8,7 @@ norm_page = Blueprint('norm_page', __name__, template_folder='templates')
 
 @norm_page.route('<name>', defaults={'page': 1})
 @norm_page.route('<name>/<int:page>')
-@user_permission.require()
+@edit_permission.require()
 def norm(name, page):
     coll = 'norm/' + name
     if coll in mongo.db.collection_names():
@@ -31,7 +31,7 @@ def norm(name, page):
 
 @norm_page.route('<name>/saved', defaults={'page': 0})
 @norm_page.route('<name>/saved/<int:page>')
-@user_permission.require()
+@edit_permission.require()
 def saved(name, page):
     coll = 'norm/' + name
     if coll in mongo.db.collection_names():
@@ -56,7 +56,7 @@ def saved(name, page):
 
 
 @norm_page.route('<name>/modify', methods=['POST'])
-@user_permission.require()
+@edit_permission.require()
 def modify(name):
     coll = 'norm/' + name
     id = int(request.form['id'])
@@ -72,7 +72,7 @@ def modify(name):
 
 
 @norm_page.route('<name>/revert', methods=['POST'])
-@user_permission.require()
+@edit_permission.require()
 def revert(name):
     coll = 'norm/' + name
     id = int(request.form['id'])
@@ -87,7 +87,7 @@ def revert(name):
 
 
 @norm_page.route('<name>/list')
-@user_permission.require()
+@edit_permission.require()
 def list(name):
     coll = 'norm/' + name
     if coll in mongo.db.collection_names():

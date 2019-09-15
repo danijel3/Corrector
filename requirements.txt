@@ -5,6 +5,4 @@ pymongo
 Flask
 Flask_Login
 Flask_WTF
-numpy
-pandas
 bcrypt

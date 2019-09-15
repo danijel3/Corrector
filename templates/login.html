@@ -19,8 +19,25 @@
         </div>
     {% endif %}
 
+
+    {% if blocked %}
+        <div class="container">
+            <div class="alert alert-danger">Podano złe hasło za dużo razy. Skontaktuj się z administratorem w celu
+                odblokowania konta.
+            </div>
+        </div>
+    {% endif %}
+
+    {% if g.identity.id %}
+        <div class="container" style="text-align: center">
+            <h2>This part of the site is restricted</h2>
+            <h3>Use different credentials to log-in</h3>
+        </div>
+    {% endif %}
+
+
     <div class="container">
-        <form method="post" action="/login">
+        <form method="post" action="/login?next={{ request.args.get('next') }}">
             {{ form.csrf_token }}
             <div class="form-group">
                 <label for="user">Login:</label>
