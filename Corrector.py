@@ -1,4 +1,6 @@
 import os
+import re
+from pathlib import Path
 
 import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, session, g
@@ -8,9 +10,6 @@ from flask_principal import Principal, identity_loaded, identity_changed, UserNe
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 
-from Corpus import *
-from Lexicon import lex_page
-from Normalization import norm_page
 from Speech import speech_page
 from auth import admin_permission, login_manager, get_user, edit_permission
 from db import mongo
@@ -21,8 +20,6 @@ with open(Path(__file__).absolute().parent / 'secret', 'rb') as f:
     app.secret_key = f.read()
 
 app.register_blueprint(speech_page, url_prefix='/speech/')
-app.register_blueprint(norm_page, url_prefix='/norm/')
-app.register_blueprint(lex_page, url_prefix='/lex/')
 
 app.config['MONGO_URI'] = f'mongodb://{os.environ["DB_HOST"]}:{os.environ["DB_PORT"]}/corrector'
 
@@ -39,51 +36,17 @@ def index():
     is_admin = False
     if g.identity.can(admin_permission):
         is_admin = True
-    corpora = mongo.db.corpora.find()
+    corpora = []
+    for coll in mongo.db.list_collection_names():
+        if coll[:7] == 'speech_':
+            corpora.append(coll[7:])
     return render_template('index.html', corpora=corpora, is_admin=is_admin)
-
-
-@app.route('/import', methods=['GET'])
-@admin_permission.require()
-def import_list():
-    corpus = request.args.get('corp')
-    corp_type = request.args.get('type')
-
-    if corpus and corp_type:
-        corpus_import(root / 'import' / corpus, corp_type)
-        return redirect('/')
-
-    corpora = list_import(root / 'import')
-    return render_template('import.html', corpora=corpora)
-
-
-@app.route('/remove', methods=['GET'])
-@admin_permission.require()
-def remove_corpus():
-    corpus = request.args['corp']
-
-    corpus_remove(corpus)
-
-    return redirect('/')
-
-
-@app.route('/export', methods=['GET'])
-@admin_permission.require()
-def export_corpus():
-    corpus = request.args['corp']
-    corp_type = request.args['type']
-
-    corpus_export(root / 'export' / corpus, corpus, corp_type)
-
-    return redirect('/')
 
 
 @app.errorhandler(PermissionDenied)
 def permission_denied(e):
     return redirect(url_for('login'))
 
-
-principals = Principal(app)
 
 login_manager.init_app(app)
 

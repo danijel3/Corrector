@@ -3,20 +3,22 @@
     <div class="jumbotron">
         <div class="container">
             <h1>List of pages for corpus "{{ name }}"</h1>
-            <p>For index {{ index }}</p>
         </div>
     </div>
 
     <div class="container page-list">
-        {% for item in items %}
-            {% if item.mod %}
-                {% set modified='page-modified' %}
-            {% endif %}
+        {% for file,segs in items.items() %}
+            <h3>{{ file }}</h3>
+            {% for utt in segs %}
+                {% if utt.mod %}
+                    {% set modified='page-modified' %}
+                {% endif %}
 
-            <a class="btn btn-sm btn-outline-primary {{ modified }}"
-               href="/speech/{{ name }}/{{ index }}/{{ item.id }}" class="page-link">
-                {{ item.utt }}
-            </a>
+                <a class="btn btn-sm btn-outline-primary {{ modified }}"
+                   href="/speech/{{ name }}/{{ utt.id }}" class="page-link">
+                    {{ utt.utt }}
+                </a>
+            {% endfor %}
         {% endfor %}
     </div>
 {% endblock %}

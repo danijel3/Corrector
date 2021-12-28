@@ -5,17 +5,14 @@
             <h1>Corpus "{{ name }}"</h1>
             <p>Speech <span class="fa fa-comments" aria-hidden="true"></span>
             </p>
-            {% if index != 'default' %}
-                <p>Index: {{ index }}</p>
-            {% endif %}
-            <div><a href="/speech/{{ name }}/index">Corpus indices</a></div>
             <div><a href="/">Back to home page</a></div>
         </div>
     </div>
 
     <div id="speech" class="container">
 
-    <h2>Utterance:<b> {{ item.utt }}</b></h2>
+    <h2>Utterance:<b> {{ item.file }}</b></h2>
+    <h3>Time segment: from <b>{{ item.start_str }}</b> to <b>{{ item.end_str }}</b></h3>
     {% if item.wer is defined %}
         <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
     {% endif %}
@@ -50,7 +47,7 @@
 
             <script src="{{ url_for('static', filename='speech.js') }}?ver=8"></script>
             <script type="text/javascript">
-                create_wavesurfer('/speech/{{ name }}/{{ index }}/wav/{{ page }}');
+                create_wavesurfer('/speech/{{ name }}/wav/{{ page }}');
                 wavesurfer.on('ready', function () {
                     {% for reg in item.regions %}add_region({{ reg[0] }}, {{ reg[1] }});
                     {% endfor %}
@@ -81,7 +78,7 @@
 
             <div class="container">
 
-                <a href="/speech/{{ name }}/{{ index }}/wav/{{ page }}" class="btn btn-warning btn-sm mt-2">
+                <a href="/speech/{{ name }}/wav/{{ page }}" class="btn btn-warning btn-sm mt-2">
                     <i class="fa fa-download"></i>
                     WAV
                 </a>
@@ -98,15 +95,18 @@
 
         <div class="card">
             <h3 class="card-header">
-                <a href="#orig-card" data-toggle="collapse" aria-expanded="false"
+                <a href="#orig-card" data-toggle="collapse" aria-expanded="true"
                    aria-controls="orig-card">
                     Original
                 </a>
             </h3>
 
-            <div class="collapse card-body" id="orig-card">
-                <p class="card-text" id="orig">{{ item.text }}</p>
+            <div class="card-body" id="orig-card">
+                <h5>ASR</h5>
+                <p class="card-text" id="orig">{{ item.predicted }}</p>
                 <p id="orig_diff" class="diff hide card-text">test</p>
+                <h5>Human</h5>
+                <p class="card-text" id="orig">{{ item.human }}</p>
             </div>
         </div>
 
@@ -136,7 +136,7 @@
                 {% set input_value =  item.corr %}
                 {% set class_value = 'modified' %}
             {% else %}
-                {% set input_value =  item.text %}
+                {% set input_value =  item.predicted %}
                 {% set class_value = '' %}
             {% endif %}
 
@@ -153,20 +153,20 @@
                 {% if page==0 %}
                     <span>&lt;&lt; Previous</span>
                     <input type="number" value="{{ page }}"
-                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                    <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Next &gt;&gt;</a>
+                           onchange="speech_page('{{ name }}',this.value)">
+                    <a class="btn" href="/speech/{{ name }}/{{ page + 1 }}">Next &gt;&gt;</a>
                 {% elif page==page_num-1 %}
                     <a class="btn" href="{{ page - 1 }}">&lt;&lt; Previous</a>
                     <input type="number" value="{{ page }}"
-                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                           onchange="speech_page('{{ name }}',this.value)">
                     <span>Next &gt;&gt;</span>
                 {% else %}
                     <a class="btn" href="{{ page - 1 }}">&lt;&lt; Previous</a>
                     <input type="number" value="{{ page }}"
-                           onchange="speech_page('{{ name }}','{{ index }}',this.value)">
+                           onchange="speech_page('{{ name }}',this.value)">
                     <a class="btn" href="{{ page + 1 }}">Next &gt;&gt;</a>
                 {% endif %}
-                <p><a href="/speech/{{ name }}/{{ index }}/list">List all</a></p>
+                <p><a href="/speech/{{ name }}/list">List all</a></p>
             </div>
         </div>
     </div>

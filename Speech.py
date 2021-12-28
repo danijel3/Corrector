@@ -1,89 +1,60 @@
 import os
 import wave
 from io import BytesIO
+from pathlib import Path
 
 from flask import Blueprint, render_template, abort, send_file, request, make_response
-from pymongo import ASCENDING
 
 from auth import edit_permission
 from db import mongo
 
 speech_page = Blueprint('speech_page', __name__, template_folder='templates')
 
+root = Path('audio')
 
-@speech_page.route('<name>/index')
+
+def format(secs):
+    h, rem = divmod(secs, 3600)
+    m, s = divmod(rem, 60)
+    return f'{int(h):02}:{int(m):02}:{s:0.2f}'
+
+
+@speech_page.route('<name>', defaults={'page': 0})
+@speech_page.route('<name>/<int:page>')
 @edit_permission.require()
-def index(name):
-    coll = 'speech/' + name
-    if coll not in mongo.db.collection_names():
+def speech(name, page):
+    coll = 'speech_' + name
+    corp = mongo.db[coll]
+    if corp is None:
         return abort(404)
 
-    corp_info = mongo.db.corpora.find_one({'coll': coll})
-
-    indices = ['default']
-
-    if 'index_num' in corp_info:
-        indices.extend([*corp_info['index_num']])
-
-    return render_template('speech_index.html', name=name, indices=indices)
-
-
-@speech_page.route('<name>', defaults={'index': 'default', 'page': 0})
-@speech_page.route('<name>/<index>/<int:page>')
-@edit_permission.require()
-def speech(name, index, page):
-    coll = 'speech/' + name
-    if coll in mongo.db.collection_names():
-        corp = mongo.db[coll]
-    else:
-        return abort(404)
-
-    corp_info = mongo.db.corpora.find_one({'coll': coll})
-
-    if index == 'default':
-        item = corp.find_one({'id': page})
-        page_num = corp_info['num']
-    else:
-        if 'index_num' in corp_info and index in corp_info['index_num']:
-            item = corp.find_one({f'index.{index}': page})
-            page_num = corp_info['index_num'][index]
-        else:
-            return abort(404)
+    page_num = corp.count_documents({})
+    item = corp.find_one({'id': page})
+    item['start_str'] = format(item['start'])
+    item['end_str'] = format(item['end'])
 
     if not item:
         return abort(404)
 
-    return render_template('speech.html', name=name, index=index, page=page, item=item, page_num=page_num)
+    return render_template('speech.html', name=name, page=page, item=item, page_num=page_num)
 
 
-@speech_page.route('<name>/<index>/wav/<int:page>')
+@speech_page.route('<name>/wav/<int:page>')
 @edit_permission.require()
-def wav(name, index, page):
-    coll = 'speech/' + name
-    if coll in mongo.db.collection_names():
-        corp = mongo.db[coll]
-    else:
+def wav(name, page):
+    coll = 'speech_' + name
+    corp = mongo.db[coll]
+    if corp is None:
         return abort(404)
 
-    corp_info = mongo.db.corpora.find_one({'coll': coll})
-
-    if index == 'default':
-        item = corp.find_one({'id': page})
-    else:
-        if 'index_num' in corp_info and index in corp_info['index_num']:
-            item = corp.find_one({f'index.{index}': page})
-        else:
-            return abort(404)
+    item = corp.find_one({'id': page})
 
     if not item:
         return abort(404)
-    path = item['wav']
-    if 'wav_s' in item:
-        wav_s = item['wav_s']
-        wav_e = item['wav_e']
-    else:
-        wav_s = -1.0
-        wav_e = -1.0
+
+    path = root / item['file']
+    wav_s = item['start']
+    wav_e = item['end']
 
     if not os.path.exists(path):
         return abort(404)
@@ -91,7 +62,7 @@ def wav(name, index, page):
     if wav_s < 0 or wav_e < 0:
         return send_file(path, mimetype='audio/wav')
     else:
-        f = wave.open(path, 'rb')
+        f = wave.open(str(path), 'rb')
         start = int(wav_s * f.getframerate())
         end = int(wav_e * f.getframerate())
         len = int(end - start)
@@ -116,11 +87,9 @@ def wav(name, index, page):
 @speech_page.route('<name>/modify', methods=['POST'])
 @edit_permission.require()
 def modify(name):
-    coll = 'speech/' + name
-    id = int(request.form['id'])
-    if coll in mongo.db.collection_names():
-        corp = mongo.db[coll]
-    else:
+    coll = 'speech_' + name
+    corp = mongo.db[coll]
+    if corp is None:
         return abort(404)
 
     if 'undo' in request.form:
@@ -135,14 +104,14 @@ def modify(name):
 @speech_page.route('<name>/regions', methods=['POST'])
 @edit_permission.require()
 def regions(name):
-    coll = 'speech/' + name
+    coll = 'speech_' + name
+    corp = mongo.db[coll]
+    if corp is None:
+        return abort(404)
+
     id = int(request.form['id'])
     reg_start = request.form.getlist('reg_start[]')
     reg_end = request.form.getlist('reg_end[]')
-    if coll in mongo.db.collection_names():
-        corp = mongo.db[coll]
-    else:
-        return abort(404)
 
     reg = []
     for s, e in zip(reg_start, reg_end):
@@ -156,36 +125,29 @@ def regions(name):
 list_items_per_page = 10
 
 
-@speech_page.route('<name>/<index>/list')
+@speech_page.route('<name>/list')
 @edit_permission.require()
-def list(name, index):
-    coll = 'speech/' + name
-    if coll in mongo.db.collection_names():
-        corp = mongo.db[coll]
-    else:
+def list(name):
+    coll = 'speech_' + name
+    corp = mongo.db[coll]
+    if corp is None:
         return abort(404)
 
-    if index == 'default':
-        items = corp.find()
-    else:
-        idx = f'index.{index}'
-        items = corp.find({}, sort=[(idx, ASCENDING)], hint=[(idx, ASCENDING)])
+    items = corp.find()
 
-    itemlist = []
+    itemlist = {}
 
     for item in items:
-        i = {'utt': item['utt']}
+        if item['file'] not in itemlist:
+            itemlist[item['file']] = []
 
-        if index == 'default':
-            i['id'] = item['id']
-        else:
-            i['id'] = item['index'][index]
+        i = {'utt': f'{format(item["start"])} - {format(item["end"])}', 'id': item['id']}
 
-        if item['corr'] or len(item['regions']) > 0:
+        if ('corr' in item and item['corr']) or ('regions' in item and len(item['regions']) > 0):
             i['mod'] = True
         else:
             i['mod'] = False
 
-        itemlist.append(i)
+        itemlist[item['file']].append(i)
 
-    return render_template('speech_list.html', name=name, index=index, items=itemlist)
+    return render_template('speech_list.html', name=name, items=itemlist)
