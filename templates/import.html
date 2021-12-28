@@ -3,7 +3,7 @@
     <div class="jumbotron">
         <div class="container">
             <h1>Import</h1>
-            <a href="/">Powrót na główną stronę</a>
+            <a href="/">Back to home page</a>
         </div>
     </div>
 
@@ -14,31 +14,31 @@
     </script>
 
     <div class="container">
-        <h2>Dostępne w katalogu "import":</h2>
+        <h2>Available in "import":</h2>
         <div class="container col-md-6">
             <table class="table">
                 <tr>
-                    <th>Nazwa</th>
-                    <th colspan="3">Importuj jako:</th>
+                    <th>Name</th>
+                    <th colspan="3">Import as:</th>
                 </tr>
                 {% for c in corpora %}
                     <tr>
                         <td>{{ c }}</td>
                         <td>
                             <a href="/import?corp={{ c }}&pass={{ pwd }}&type=norm" data-toggle="tooltip"
-                               title="Normalizacja">
+                               title="Normalization">
                                 <span class="fa fa-refresh" aria-hidden="true"></span>
                             </a>
                         </td>
                         <td>
                             <a href="/import?corp={{ c }}&pass={{ pwd }}&type=lex" data-toggle="tooltip"
-                               title="Leksykon">
+                               title="Lexicon">
                                 <span class="fa fa-arrow-up" aria-hidden="true"></span>
                             </a>
                         </td>
                         <td>
                             <a href="/import?corp={{ c }}&pass={{ pwd }}&type=speech" data-toggle="tooltip"
-                               title="Mowa">
+                               title="Speech">
                                 <span class="fa fa-comments" aria-hidden="true"></span>
                             </a>
                         </td>

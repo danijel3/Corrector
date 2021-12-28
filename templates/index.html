@@ -4,9 +4,9 @@
         <div class="container">
             <h1 style="font-family: 'Allura', cursive; font-size: 72pt;">
                 <span class="fa fa-eraser" aria-hidden="true"></span>
-                Korektor
+                Corrector
             </h1>
-            <p>Strona do korekcji korpusów...</p>
+            <p>Corpora correcting page...</p>
         </div>
     </div>
 
@@ -20,13 +20,13 @@
 
 
     <div class="container">
-        <h2>Wybierz korpus</h2>
+        <h2>Choose corpus</h2>
         <div class="container">
             <table class="table table-striped">
                 <thead class="thead-inverse">
                 <tr>
-                    <th style="width: 10%">Rodzaj</th>
-                    <th>Nazwa</th>
+                    <th style="width: 10%">Kind</th>
+                    <th>Name</th>
                     <th style="width: 20%;">&nbsp;&nbsp;</th>
                 </tr>
                 </thead>
@@ -40,11 +40,11 @@
                         {% if is_admin %}
                             <td>
                                 <a class="btn btn-info" href="/export?corp={{ c.coll }}&type={{ c.kind }}"
-                                   onclick="return confirm('Na pewno?')">
+                                   onclick="return confirm('Are you sure?')">
                                     <span class="fa fa-download" aria-hidden="true"></span> Export
                                 </a>
                                 <a class="btn btn-danger" href="/remove?corp={{ c.coll }}"
-                                   onclick="return confirm('Na pewno?')">
+                                   onclick="return confirm('Are you sure?')">
                                     <span class="fa fa-remove" aria-hidden="true"></span> Delete
                                 </a>
                             </td>

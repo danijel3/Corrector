@@ -2,20 +2,20 @@
 {% block body %}
     <div class="jumbotron">
         <div class="container">
-            <h1>Korpus "{{ name }}"</h1>
-            <p>Mowa <span class="fa fa-comments" aria-hidden="true"></span>
+            <h1>Corpus "{{ name }}"</h1>
+            <p>Speech <span class="fa fa-comments" aria-hidden="true"></span>
             </p>
             {% if index != 'default' %}
-                <p>Indeks: {{ index }}</p>
+                <p>Index: {{ index }}</p>
             {% endif %}
-            <div><a href="/speech/{{ name }}/index">Indeksy korpusu</a></div>
-            <div><a href="/">Powrót na główną stronę</a></div>
+            <div><a href="/speech/{{ name }}/index">Corpus indices</a></div>
+            <div><a href="/">Back to home page</a></div>
         </div>
     </div>
 
     <div id="speech" class="container">
 
-    <h2>Zdanie:<b> {{ item.utt }}</b></h2>
+    <h2>Utterance:<b> {{ item.utt }}</b></h2>
     {% if item.wer is defined %}
         <p>[WER: {{ '{:%}'.format(item.wer) }} Edits: {{ item.edits }}#]</p>
     {% endif %}
@@ -62,19 +62,19 @@
             <div class="container">
                 <button class="btn btn-primary col-md-3" onclick="wavesurfer.playPause()">
                     <span class="fa fa-play"></span>
-                    Odtwórz/Zatrzymaj
+                    Play/Pause
                 </button>
 
                 <div class="col-md-6 float-right">
                     <button class="btn col-md-7" onclick="add_region_curr()">
                         <i class="fa fa-plus"></i>
-                        Dodaj region do pominięcia
+                        Add skip region
                     </button>
 
                     <button class="btn btn-success col-md-4"
                             onclick="save_regions('{{ name }}','{{ item.id }}')">
                         <span class="fa fa-check"></span>
-                        Zapisz regiony
+                        Save regions
                     </button>
                 </div>
             </div>
@@ -87,11 +87,11 @@
                 </a>
                 <button class="btn btn-info btn-sm mt-2" data-toggle="modal" data-target="#skrotyModal">
                     <i class="fa fa-question-circle"></i>
-                    Skróty klawiszowe
+                    Keyboard shortcuts
                 </button>
 
                 <div class="col-md-6 float-right">
-                    <div style="font-size: 8pt">(usuwanie podwójnym klikiem)</div>
+                    <div style="font-size: 8pt">(remove by double-click)</div>
                 </div>
             </div>
         </div>
@@ -100,7 +100,7 @@
             <h3 class="card-header">
                 <a href="#orig-card" data-toggle="collapse" aria-expanded="false"
                    aria-controls="orig-card">
-                    Oryginał
+                    Original
                 </a>
             </h3>
 
@@ -112,16 +112,16 @@
 
         <div class="card">
             <h3 class="card-header">
-                Korekta
+                Correction
                 <span style="float:right; position: relative; top:-7px">
                     <button id="save_btn" class="btn btn-success" onclick="save_speech('{{ name }}','{{ item.id }}')">
                         <span class="fa fa-check"></span>
-                        Zapisz
+                        Save
                     </button>
                     <button id="diff_btn" class="btn btn-info">Diff</button>
                     <button id="save_btn" class="btn btn-danger" onclick="undo_speech('{{ name }}','{{ item.id }}')">
                         <span class="fa fa-remove"></span>
-                        Usuń zmiany
+                        Remove changes
                     </button>
                 </span>
 
@@ -148,25 +148,25 @@
         </div>
 
         <div class="card" style="text-align: center">
-            <div class="card-header">Strona</div>
+            <div class="card-header">Page</div>
             <div class="card-body">
                 {% if page==0 %}
-                    <span>&lt;&lt; Poprzednia</span>
+                    <span>&lt;&lt; Previous</span>
                     <input type="number" value="{{ page }}"
                            onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                    <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+                    <a class="btn" href="/speech/{{ name }}/{{ index }}/{{ page + 1 }}">Next &gt;&gt;</a>
                 {% elif page==page_num-1 %}
-                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Previous</a>
                     <input type="number" value="{{ page }}"
                            onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                    <span>Następna &gt;&gt;</span>
+                    <span>Next &gt;&gt;</span>
                 {% else %}
-                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Previous</a>
                     <input type="number" value="{{ page }}"
                            onchange="speech_page('{{ name }}','{{ index }}',this.value)">
-                    <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+                    <a class="btn" href="{{ page + 1 }}">Next &gt;&gt;</a>
                 {% endif %}
-                <p><a href="/speech/{{ name }}/{{ index }}/list">Lista wszystkich stron</a></p>
+                <p><a href="/speech/{{ name }}/{{ index }}/list">List all</a></p>
             </div>
         </div>
     </div>
@@ -178,7 +178,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Skróty klawiszowe</h5>
+                    <h5 class="modal-title">Keyboard shortcuts</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -189,7 +189,7 @@
                         <tbody>
                         <tr>
                             <td>NumKey 0</td>
-                            <td>Odtwórz/Zatrzymaj</td>
+                            <td>Play/pause</td>
                         </tr>
                         <tr>
                             <td>NumKey +</td>
@@ -206,15 +206,15 @@
                         </tr>
                         <tr>
                             <td>NumKey 4</td>
-                            <td>Przesuń 1s do tyłu</td>
+                            <td>Skip 1s back</td>
                         </tr>
                         <tr>
                             <td>NumKey 6</td>
-                            <td>Przesuń 1s do przodu</td>
+                            <td>Skip 1s forward</td>
                         </tr>
                         <tr>
                             <td>NumKey 1</td>
-                            <td>Przesuń na początek</td>
+                            <td>Skip to beginning</td>
                         </tr>
                         </tbody>
                     </table>

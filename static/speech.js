@@ -190,7 +190,7 @@ function save_speech(corp_name, item_id) {
 }
 
 function undo_speech(corp_name, item_id) {
-    if (!confirm('Czy na pewno?'))
+    if (!confirm('Are you sure?'))
         return;
     $.post('/speech/' + corp_name + '/modify', {
         id: item_id,
@@ -206,8 +206,8 @@ function update_speech() {
 
 window.onbeforeunload = function () {
     if (region_modified)
-        return 'Nie zapisano zmian w obszarach! Czy na pewno chcesz opuścić stronę?';
+        return 'Some regions were not saved! Are you sure you want to leave this page?';
     if (speech_modified)
-        return 'Nie zapisano zmian w transkrypcji! Czy na pewno chcesz opuścić stronę?';
+        return 'Some modifications in transcripts were not saved! Are you sure you want to leave this page?';
     return null;
 };

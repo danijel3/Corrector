@@ -2,10 +2,10 @@
 {% block body %}
     <div class="jumbotron">
         <div class="container">
-            <h1>Korpus "{{ name }}"</h1>
-            <p>Leksykon <span class="fa fa-book" aria-hidden="true"></span>
+            <h1>Corpus "{{ name }}"</h1>
+            <p>Lexicon <span class="fa fa-book" aria-hidden="true"></span>
             </p>
-            <a href="/">Powrót na główną stronę</a>
+            <a href="/">Back to home page</a>
         </div>
     </div>
 
@@ -13,9 +13,9 @@
 
         <table class="table">
             <tr>
-                <th>Słowo</th>
-                <th>Transkrypcja</th>
-                <th>Dodaj/usuń</th>
+                <th>Word</th>
+                <th>Phones</th>
+                <th>Add/remove</th>
             </tr>
             {% for item in items %}
                 {% for ph in item.phon %}

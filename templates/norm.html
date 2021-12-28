@@ -2,10 +2,10 @@
 {% block body %}
     <div class="jumbotron">
         <div class="container">
-            <h1>Korpus "{{ name }}"</h1>
-            <p>Normalizacja <span class="fa fa-refresh" aria-hidden="true"></span>
+            <h1>Corpus "{{ name }}"</h1>
+            <p>Normalization <span class="fa fa-refresh" aria-hidden="true"></span>
             </p>
-            <a href="/">Powrót na główną stronę</a>
+            <a href="/">Back to home page</a>
         </div>
     </div>
 
@@ -13,7 +13,7 @@
 
         <div class="norm_item card">
             <h2 class="card-header">
-                Oryginał
+                Original
                 <button id="diff_btn" class="btn" style="float: right">Diff</button>
             </h2>
             <div class="card-body">{{ item.orig }}</div>
@@ -23,7 +23,7 @@
             <h2 class="card-header">
                 <a href="#norm_c{{ item.id }}" data-toggle="collapse" aria-expanded="false"
                    aria-controls="norm_c{{ item.id }}">
-                    Normalizator
+                    Normalizer
                 </a>
             </h2>
             <div class="norm collapse card-body" id="norm_c{{ item.id }}">
@@ -33,7 +33,7 @@
         </div>
         <div class="card">
 
-            <h2 class="card-header">Korekta</h2>
+            <h2 class="card-header">Correction</h2>
             {% if item.corr %}
                 {% set input_value =  item.corr %}
             {% else %}
@@ -63,22 +63,22 @@
         </div>
 
         <div class="card" style="text-align: center">
-            <p class="card-header">Strona</p>
+            <p class="card-header">Page</p>
             <div class="card-body">
                 {% if page==1 %}
-                    <span>&lt;&lt; Poprzednia</span>
+                    <span>&lt;&lt; Back</span>
                     <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                    <a class="btn" href="{{ name }}/{{ page + 1 }}">Następna &gt;&gt;</a>
+                    <a class="btn" href="{{ name }}/{{ page + 1 }}">Next &gt;&gt;</a>
                 {% elif page==page_num %}
-                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Back</a>
                     <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                    <span>Następna &gt;&gt;</span>
+                    <span>Next &gt;&gt;</span>
                 {% else %}
-                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Poprzednia</a>
+                    <a class="btn" href="{{ page - 1 }}">&lt;&lt; Back</a>
                     <input type="number" value="{{ page }}" onchange="norm_page('{{ name }}',this.value)">
-                    <a class="btn" href="{{ page + 1 }}">Następna &gt;&gt;</a>
+                    <a class="btn" href="{{ page + 1 }}">Next &gt;&gt;</a>
                 {% endif %}
-                <p><a href="/norm/{{ name }}/list">Lista wszystkich stron</a></p>
+                <p><a href="/norm/{{ name }}/list">List all pages</a></p>
             </div>
         </div>
 
@@ -97,12 +97,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Co zapisano na serwerze?</h4>
+                    <h4 class="modal-title">What was saved on the server?</h4>
                 </div>
                 <div class="modal-body" id="savedContent">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
